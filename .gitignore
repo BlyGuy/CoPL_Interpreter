@@ -1,0 +1,9 @@
+*.vscode
+*.exe
+*.o
+*.png
+*.pdf
+*.txt
+build
+build/*
+Interpreter
