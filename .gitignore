@@ -1,9 +1,10 @@
 *.vscode
 *.exe
 *.o
+*.d
 *.png
 *.pdf
 *.txt
 build
 build/*
-Interpreter
+main

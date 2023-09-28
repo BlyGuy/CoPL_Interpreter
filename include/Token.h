@@ -1,5 +1,5 @@
 /**
- * @file tokens.h
+ * @file Token.hh
  * @author TODO
  * @author Joshua Lelipaly (s3329941)
  * @author Marc Hoek (s3157520)
@@ -14,7 +14,7 @@
 /**
  * @brief Enum for categorizing tokens
  * @tokens
- *      - single char: LAMBDA, LEFT_BRACKET, RIGHT_BRACKET
+ *      - single char: LAMBDA '\', LEFT_BRACKET '(' , RIGHT_BRACKET ')'
  *      - multiple char: VAR (regEx = [a-zA-Z][a-zA-Z0-9]*)
  */
 enum ETokenType {
