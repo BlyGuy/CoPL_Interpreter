@@ -12,7 +12,7 @@
 #include <iostream>
 
 enum EErrorType {
-    UNKNOWN,
+    UNKNOWN = 1,
     ALLOCATION_ERROR
     //TODO: add more meaningful errors
 };
