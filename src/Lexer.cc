@@ -35,8 +35,7 @@ void Lexer::stringToTokens(const std::string input)
 {
     const size_t inputLength = input.length();
     char inputChar;
-    //long long openBrackets = 0;
-    //TODO: Optional feature for more points
+    //TODO: Implement dot-tokens
     //size_t dotBrackets = 0;
     for (size_t i = 0; i < inputLength; i++)
     {
@@ -47,16 +46,10 @@ void Lexer::stringToTokens(const std::string input)
             tokens.push_back({LAMBDA, ""});
             break;
         case '(':
-            //openBrackets++;
             tokens.push_back({LEFT_BRACKET, ""});
             break;
         case ')':
             tokens.push_back({RIGHT_BRACKET, ""});
-            //openBrackets--;
-            // if (openBrackets < 0) {
-            //     std::cout << "character-index in string: " << i << std::endl;
-            //     printError(UNPAIRED_RIGHT_BRACKET);
-            // }
             break;
         //Ignore Whitespace
         case '\n':
@@ -73,14 +66,10 @@ void Lexer::stringToTokens(const std::string input)
                 std::cout << "The character in question: " << input[i] 
                 << ", character-index in string: " << i << std::endl;
                 printError(ILLEGAL_CHARACTER);
+                exit(ILLEGAL_CHARACTER);
             }
         }
     }
-    
-    // if (openBrackets > 0) {
-    //     std::cout << "Unpaired Left Brackets: " << openBrackets << std::endl;
-    //     printError(UNPAIRED_LEFT_BRACKET);
-    // }
 } //Lexer::stringToTokens
 
 void Lexer::print()

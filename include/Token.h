@@ -1,5 +1,5 @@
 /**
- * @file Token.hh
+ * @file Token.h
  * @author TODO
  * @author Joshua Lelipaly (s3329941)
  * @author Marc Hoek (s3157520)
