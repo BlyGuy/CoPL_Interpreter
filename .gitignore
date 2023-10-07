@@ -5,6 +5,4 @@
 *.png
 *.pdf
 *.txt
-build
-build/*
-main
+*main

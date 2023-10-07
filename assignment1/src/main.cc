@@ -15,19 +15,19 @@ int main() {
         Lexer lex(input); //convert input text into tokenStream;
         lex.print();
 
+        //TODO: implent this
         //Syntactical analysis
-        std::cout << "SyntaxTree: ";
-        SyntaxTree tree(lex); //convert tokenStream to SyntaxTree;
-        tree.print();
+        //std::cout << "SyntaxTree: ";
+        //SyntaxTree tree(lex); //convert tokenStream to SyntaxTree;
+        //tree.print();
 
+        //TODO: implent this
         //Semantical analysis
         // tree.semanticalAnalysis(); //decorate the syntaxTree
         // tree.optimize();
         // std::cout << "Optimized tree: ";
         // tree.print();
 
-        //Interpretation step
-        //blab.ExecuteParseTree();
     }
     return 0;
 }
