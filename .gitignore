@@ -1,8 +1,12 @@
+# Files specific to the development environment
 *.vscode
+
+# Compilation-results and artifacts
 *.exe
 *.o
 *.d
+*main
+
+# Other unwanted binary files
 *.png
 *.pdf
-*.txt
-*main
