@@ -2,7 +2,7 @@
 
 The implementation of the interpreter is divided over three assignments:
 
-1. A recognizer for the untyped lambda calculus 
+1. A recognizer for the untyped lambda calculus
 2. A interpreter for the untyped lambda calculus
 3. A interpreter for the **typed** lambda calculus
 
