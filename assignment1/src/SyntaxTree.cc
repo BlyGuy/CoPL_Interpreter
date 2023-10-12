@@ -1,5 +1,19 @@
 #include "SyntaxTree.h"
 
+// NODE-CLASS FUNCTIONS //
+
+Node::~Node() {
+    if (left != nullptr) {
+        delete left;
+    }
+    if (right != nullptr) {
+        delete right;
+    }
+}
+
+
+// SYNTAXTREE-CLASS FUNCTIONS //
+
 SyntaxTree::SyntaxTree()
 {
     root = nullptr;
@@ -7,73 +21,130 @@ SyntaxTree::SyntaxTree()
 
 SyntaxTree::~SyntaxTree()
 {
-    //TODO!!!
+    clear();
 } //SyntaxTree::~SyntaxTree
 
 SyntaxTree::SyntaxTree(Lexer & lex)
 {
-    ConstructParseTree(lex); //Creëert Segmentation fault! :(
+    ConstructParseTree(lex.tokens); //Creëert Segmentation fault! :(
 } //SyntaxTree::SyntaxTree(Lexer)
 
-bool SyntaxTree::ConstructParseTree(Lexer & lex)
-{
-    if (lex.tokens.empty()) {
-        printError(EMPTY_EXPRESSION);
-        return false;
-    }
 
-    size_t index = lex.tokens.size();
-    if (ConstructParseTreeApp(lex, index, root)){
-        return true;
+bool SyntaxTree::ConstructParseTree(std::vector<Token> & tokens)
+{
+    if (tokens.empty()) {
+        throwException(EMPTY_EXPRESSION);
     }
-    return false;
+    //Allocate the root-node
+    root = new Node;
+    if (root == nullptr) {
+        throwException(ALLOCATION_ERROR);
+    }
+    //Parse the first application
+    root->type = APPLICATION;
+    size_t index = 0;
+    bool result = ConstructParseTreeApp(tokens, index, root);
+
+    //The first application is not allowed to end with a right_bracket
+    if (tokens[index].type == RIGHT_BRACKET) {
+        throwException(UNPAIRED_RIGHT_BRACKET);
+    }
+    return result;
 } //Syntaxtree::ConstructParseTree
 
-bool SyntaxTree::ConstructParseTreeApp(Lexer & lex, size_t & index, Node* subTree)
+
+bool SyntaxTree::ConstructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
-    if (index < 0) {
-        return false;
-    }
-    subTree->right = new Node;
+    //Parse the Abstraction
+    subTree->left = new Node;
     if (subTree->left == nullptr) {
-        printError(ALLOCATION_ERROR);
-        return false;
+        throwException(ALLOCATION_ERROR);
     }
-    subTree->right->type = ABSTRACTION;
-    if (!ConstructParseTreeAbstr(lex, index, subTree)) {
+    subTree->left->type = ABSTRACTION;
+    if (!ConstructParseTreeAbstr(tokens, index, subTree->left)) {
         return false;
-    } else if (index < 0) {
+    } 
+
+    //Check the next look-ahead token if we're only parsing an abstraction
+    index++;
+    if (index >= tokens.size() || tokens[index].type == RIGHT_BRACKET) {
         return true;
     }
-    subTree->left = new Node;
-    if (subTree->left == nullptr) {
-        printError(ALLOCATION_ERROR);
-        return false;
+    //Parse the next Application
+    subTree->right = new Node;
+    if (subTree->right == nullptr) {
+        throwException(ALLOCATION_ERROR);
     }
-    subTree->left->type = APPLICATION;
-    index--;
-    return ConstructParseTreeApp(lex, index, subTree->right);
+    subTree->right->type = APPLICATION;
+    return ConstructParseTreeApp(tokens, index, subTree->right);
 } //SyntaxTree::ConstructParseTreeSub
 
-bool SyntaxTree::ConstructParseTreeAbstr(Lexer & lex, size_t & index, Node* subTree)
+bool SyntaxTree::ConstructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
+    //Check for a lambda-expression and parse one if needed
+    if (tokens[index].type == LAMBDA) {
+        if (!(index + 2 < tokens.size() && tokens[index + 1].type == VAR)) {
+            throwException(LAMBDA_MISSING_VAR_AND_EXPRESSION);
+        }
+        //Store the Lambda-variable directly in the node
+        subTree->varName = tokens[index + 1].varName;
+        //Parse the following Abstraction
+        index += 2;
+        subTree->left = new Node;
+        if (subTree->left == nullptr) {
+            throwException(ALLOCATION_ERROR);
+        }
+        subTree->left->type = ABSTRACTION;
+        return ConstructParseTreeAbstr(tokens, index, subTree->left);
+    }
+
+    //Parse the Atomic
     subTree->left = new Node;
     if (subTree->left == nullptr) {
-        printError(ALLOCATION_ERROR);
-        return false;
+        throwException(ALLOCATION_ERROR);
     }
     subTree->left->type = ATOMIC;
-    return true;
+    return ConstructParseTreeAtom(tokens, index, subTree->left);
 } //SyntaxTree::ConstructParseTreeSub
 
-bool SyntaxTree::ConstructParseTreeFactor(Lexer & lex, size_t & index, Node* subTree)
+
+bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
-    return true;
+    if (tokens[index].type == VAR) {
+        subTree->varName = tokens[index].varName;
+        return true;
+    }
+
+    if (tokens[index].type == LEFT_BRACKET) {
+        //Parse the sub-expression
+        index++;
+        subTree->left = new Node;
+        if (subTree->left == nullptr) {
+            throwException(ALLOCATION_ERROR);
+        }
+        subTree->left->type = APPLICATION;
+        if (!ConstructParseTreeApp(tokens, index, subTree->left)){
+            return false;
+        }
+        // Check for a matching right_bracket
+        if (tokens[index].type != RIGHT_BRACKET) {
+            throwException(UNPAIRED_LEFT_BRACKET);
+        }
+        return true;
+    }
+
+    if (tokens[index].type == RIGHT_BRACKET) {
+        throwException(UNPAIRED_RIGHT_BRACKET);
+    }
+
+    return false;
 } //SyntaxTree::ConstructParseTreeSub
+
 
 void SyntaxTree::print() {
     print(root);
 }
+
 
 void SyntaxTree::print(Node* node)
 {
@@ -87,14 +158,13 @@ void SyntaxTree::print(Node* node)
         print(node->right);
         break;
     case ABSTRACTION:
-        if (!node->varName.empty()) {
-            std::cout << node->varName << ' ';
-        } else {
-            print(node->left);
+        if (!(node->varName.empty())) {
+            std::cout << '\\' << node->varName << ' ';
         }
+        print(node->left);
         break;
     case ATOMIC:
-        if (!node->varName.empty()) {
+        if (!(node->varName.empty())) {
             std::cout << node->varName << ' ';
         } else {
             std::cout << "( ";
@@ -104,3 +174,13 @@ void SyntaxTree::print(Node* node)
         break;
     }
 } //SyntaxTree::print
+
+
+void SyntaxTree::clear()
+{
+    if (root == nullptr) {
+        return;
+    }
+    delete root;
+    root = nullptr;
+} //SyntaxTree::clear

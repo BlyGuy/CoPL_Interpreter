@@ -1,5 +1,6 @@
 #include "errors.h"
 
-void printError(EErrorType type){
+void throwException(EErrorType type){
     std::cerr << "ERROR: " << errorMessages[type-1] << std::endl;
-} //printError
+    exit(type);
+} //throwException

@@ -15,11 +15,15 @@ int main() {
         Lexer lex(input); //convert input text into tokenStream;
         lex.print();
 
-        //TODO: implent this
         //Syntactical analysis
-        //std::cout << "SyntaxTree: ";
-        //SyntaxTree tree(lex); //convert tokenStream to SyntaxTree;
-        //tree.print();
+        std::cout << "SyntaxTree: ";
+        SyntaxTree tree; //convert tokenStream to SyntaxTree;
+        if (!tree.ConstructParseTree(lex.tokens)) {
+            std::cout << "Er ging iets mis tijdens het parsen :(" << std::endl;
+        } else {
+            tree.print();
+        }
+        std::cout << std::endl;
 
         //TODO: implent this
         //Semantical analysis

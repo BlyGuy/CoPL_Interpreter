@@ -65,8 +65,7 @@ void Lexer::stringToTokens(const std::string input)
             } else {
                 std::cout << "The character in question: " << input[i] 
                 << ", character-index in string: " << i << std::endl;
-                printError(ILLEGAL_CHARACTER);
-                exit(ILLEGAL_CHARACTER);
+                throwException(ILLEGAL_CHARACTER);
             }
         }
     }

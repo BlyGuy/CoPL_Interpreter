@@ -1,6 +1,6 @@
 # This README is perfect, DONT CHANGE🗿
 
-## Reasons:
+## Reasons
 
 1. Just because
 2. Refer back reason 1
