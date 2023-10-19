@@ -3,7 +3,7 @@
 ## Assignment 1
 
 [ ] Serious README
-[ ] Implement Symtable
+[ ] Remove Symtable
 [ ] Example archives positive.tar.gz en negative.tar.gz
 [ ] EMPTY_BRACKETS_EXPRESSION-error implementeren in error-messages
 [ ] File-inlees functionaliteit
