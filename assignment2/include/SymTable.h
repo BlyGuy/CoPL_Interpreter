@@ -11,4 +11,4 @@ struct SymTableEntry
     size_t bound_id = 0;
 };
 
-#endif SYMTABLE_H
+#endif //SYMTABLE_H

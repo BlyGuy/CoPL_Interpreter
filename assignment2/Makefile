@@ -11,7 +11,7 @@ SRC_DIR = src
 SOURCES = $(shell find $(SRC_DIR)/ -name '*.cc')
 OBJECTS = $(SOURCES:.cc=.o)
 DEPS = $(OBJECTS:.o=.d)
-TARGET = main
+TARGET = interpreter
 
 # CXX compiler settings
 CC = g++

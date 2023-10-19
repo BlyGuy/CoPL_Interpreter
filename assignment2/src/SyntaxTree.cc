@@ -87,7 +87,6 @@ bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
         if (!(index + 2 < tokens.size() && tokens[index + 1].type == VAR)) {
             throwException(LAMBDA_MISSING_VAR_AND_EXPRESSION);
         }
-        std::cout << "hallo" << std::endl;
         //Connect the Lambda-variable directly to the node
         //And create a new SymTableEntry for this variable
         symTable.push_back({tokens[index + 1].varName, true, symTableIndex});
@@ -154,6 +153,7 @@ bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & in
 bool SyntaxTree::converse(Node* subTree, Token & var, std::string subs) 
 {
     //var.varName = 
+    return false;
 } //SyntaxTree::converse
 
 bool SyntaxTree::reduce(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot)
@@ -169,9 +169,10 @@ bool SyntaxTree::reduce(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar,
     //      - WT: Laat de parent direct naar N wijzen
     //      - Niet: Laat de parent naar een kopie van N wijzen
     
-    subTreeVar = subTreeSubst;               //x:=N
-    subTreeRoot->left->left = subTreeRoot->left; //
-    subTreeRoot->right = nullptr;
+    // subTreeVar = subTreeSubst;               //x:=N
+    // subTreeRoot->left->left = subTreeRoot->left; //
+    // subTreeRoot->right = nullptr;
+    return false;
 } //SyntaxTree::reduce
 
 void SyntaxTree::print() {
@@ -192,14 +193,12 @@ void SyntaxTree::print(Node* node)
         break;
     case ABSTRACTION:
         if (!(symTable[node->symTableID].varName.empty())) {
-            // std::cout << node->symTableID;
             std::cout << '\\' << symTable[node->symTableID].varName << ' ';
         }
         print(node->left);
         break;
     case ATOMIC:
         if (!(symTable[node->symTableID].varName.empty())) {
-            // std::cout << node->symTableID;
             std::cout << symTable[node->symTableID].varName << ' ';
         } else {
             std::cout << "( ";
