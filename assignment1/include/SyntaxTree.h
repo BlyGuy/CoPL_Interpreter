@@ -29,7 +29,7 @@ enum ENodeType {
 class Node {
 public:
     ENodeType type;
-    std::string varName = ""; //in case of leaf-FACTOR-node
+    std::string varName = "";
     Node* left = nullptr;
     Node* right = nullptr;
 

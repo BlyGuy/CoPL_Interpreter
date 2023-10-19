@@ -45,8 +45,9 @@ bool SyntaxTree::ConstructParseTree(std::vector<Token> & tokens)
     size_t index = 0;
     bool result = ConstructParseTreeApp(tokens, index, root);
 
-    //The first application is not allowed to end with a right_bracket
-    if (tokens[index].type == RIGHT_BRACKET) {
+    //Checking if parsing finished prematurely
+    if (index < tokens.size()) {
+        //this happens due to a unpaired right-bracket in the top layer
         throwException(UNPAIRED_RIGHT_BRACKET);
     }
     return result;
@@ -116,6 +117,10 @@ bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & in
     }
 
     if (tokens[index].type == LEFT_BRACKET) {
+        //Check for empty expression
+        if (index + 1 < tokens.size() && tokens[index + 1].type == RIGHT_BRACKET) {
+            throwException(EMPTY_BRACKET_EXPRESSION);
+        }
         //Parse the sub-expression
         index++;
         subTree->left = new Node;
