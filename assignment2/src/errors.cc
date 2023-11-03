@@ -1,18 +1,19 @@
 #include "errors.h"
 
-//TODO: better written messages
 const char* errorMessages[] = 
 {
-    "An Unknown Error Occured! I am impressed.", //UNKNOWN
-    "A memory error occurred. Maybe back down on the parentheses next time ;)", //ALLOCATION_ERROR
-    "Empty expressions are not part of the Lambda Calculus language :(", //EMPTY_EXPRESSION
-    "(A) Character(s) in the input-string is not allowed to exist :O)", //ILLEGAL_CHARACTER
-    "nononono, left bracket(s) are missing a right bracket",      //UNPAIRED_LEFT_BRACKET
-    "nononono, u did right bracket before left bracket",      //UNPAIRED_RIGHT_BRACKET
-    "A Lambda-character is missing either or both a variable and an expression following the variable" //LAMBDA_MISSING_VAR_AND_EXPRESSION
+    "Something went wrong during the parsing process. The cause is unknown to the interpreter", //UNKNOWN
+    "The program had trouble fetching more memory. This is not your fault", //ALLOCATION_ERROR
+    "A Character in the input-string is not allowed to exist", //ILLEGAL_CHARACTER
+    "Empty expressions are not part of the lambda calculus language", //EMPTY_EXPRESSION
+    "A Lambda-character is missing either or both a variable and an expression following the variable", //LAMBDA_MISSING_VAR_AND_EXPRESSION
+    "A left-bracket near the end of the input-string is either missing an expression or following a right bracket", //UNFINISHED_BRACKET_EXPRESSION
+    "An expression inside of brackets is not allowed to be empty", //EMPTY_BRACKET_EXPRESSION
+    "A left bracket is missing a following right bracket", //UNPAIRED_LEFT_BRACKET
+    "A right bracket was entered before a preceding left bracket" //UNPAIRED_RIGHT_BRACKET
 };
 
 void throwException(EErrorType type){
-    std::cerr << "ERROR: " << errorMessages[type-1] << std::endl;
+    std::cerr << "ERROR: " << errorMessages[type-1] << " :(" << std::endl;
     exit(type);
 } //throwException

@@ -6,7 +6,8 @@
 - [x] Remove Symtable
 - [x] Example archives positive.tar.gz en negative.tar.gz
 - [x] Implement EMPTY_BRACKETS_EXPRESSION-error in error-messages
-- [ ] Finish code documentation using comments
+- [x] Finish code documentation using comments
+- [x] Standardize repo for TA testing framework
 
 ### Optional
 
@@ -15,10 +16,10 @@
 
 ## Assigmnent 2
 
-- [ ] Merging the positive changes of Assignment 1 into Assignment 2
+- [x] Merging the positive changes of Assignment 1 into Assignment 2
 - [ ] File-reading functionality
 - [ ] Variable Bound checking implentation using direct recursion
-- [ ] Remove Symtable (?maybe?)
+- [x] Remove Symtable
 - [ ] Beta reduction
 - [ ] Alpha conversion
 - [ ] Serious README

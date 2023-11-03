@@ -52,7 +52,7 @@ private:
                         represented in the parse tree
     * @return false    the application is invalid
     */
-    bool ConstructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree);
+    bool constructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
     
     /**
@@ -66,7 +66,7 @@ private:
                         represented in the parse tree
     * @return false    the abstraction is invalid
     */
-    bool ConstructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree);
+    bool constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree);
     
     /**
     * @brief constructs the atom from the parsetree recursively
@@ -79,7 +79,7 @@ private:
                         represented in the parse tree
     * @return false    the atom is invalid
     */    
-    bool ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
+    bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
     /**
     * @brief prints the syntax tree recursively
@@ -102,7 +102,7 @@ public:
     * @return false    the expression is invalid
     *                  or the parse tree couldn't be created
     */
-    bool ConstructParseTree(std::vector<Token> & tokens);
+    bool constructParseTree(std::vector<Token> & tokens);
     
     /**
      * @brief prints the syntax tree

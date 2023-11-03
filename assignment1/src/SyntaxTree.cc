@@ -26,11 +26,11 @@ SyntaxTree::~SyntaxTree()
 
 SyntaxTree::SyntaxTree(Lexer & lex)
 {
-    ConstructParseTree(lex.tokens); //Creëert Segmentation fault! :(
+    constructParseTree(lex.tokens);
 } //SyntaxTree::SyntaxTree(Lexer)
 
 
-bool SyntaxTree::ConstructParseTree(std::vector<Token> & tokens)
+bool SyntaxTree::constructParseTree(std::vector<Token> & tokens)
 {
     if (tokens.empty()) {
         throwException(EMPTY_EXPRESSION);
@@ -43,7 +43,7 @@ bool SyntaxTree::ConstructParseTree(std::vector<Token> & tokens)
     //Parse the first application
     root->type = APPLICATION;
     size_t index = 0;
-    bool result = ConstructParseTreeApp(tokens, index, root);
+    bool result = constructParseTreeApp(tokens, index, root);
 
     //Checking if parsing finished prematurely
     if (index < tokens.size()) {
@@ -51,10 +51,10 @@ bool SyntaxTree::ConstructParseTree(std::vector<Token> & tokens)
         throwException(UNPAIRED_RIGHT_BRACKET);
     }
     return result;
-} //Syntaxtree::ConstructParseTree
+} //Syntaxtree::constructParseTree
 
 
-bool SyntaxTree::ConstructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree)
+bool SyntaxTree::constructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     //Parse the Abstraction
     subTree->left = new Node;
@@ -62,9 +62,9 @@ bool SyntaxTree::ConstructParseTreeApp(std::vector<Token> & tokens, size_t & ind
         throwException(ALLOCATION_ERROR);
     }
     subTree->left->type = ABSTRACTION;
-    if (!ConstructParseTreeAbstr(tokens, index, subTree->left)) {
+    if (!constructParseTreeAbstr(tokens, index, subTree->left)) {
         return false;
-    } 
+    }
 
     //Check the next look-ahead token if we're only parsing an abstraction
     index++;
@@ -77,10 +77,10 @@ bool SyntaxTree::ConstructParseTreeApp(std::vector<Token> & tokens, size_t & ind
         throwException(ALLOCATION_ERROR);
     }
     subTree->right->type = APPLICATION;
-    return ConstructParseTreeApp(tokens, index, subTree->right);
-} //SyntaxTree::ConstructParseTreeSub
+    return constructParseTreeApp(tokens, index, subTree->right);
+} //SyntaxTree::constructParseTreeApp
 
-bool SyntaxTree::ConstructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree)
+bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     //Check for a lambda-expression and parse one if needed
     if (tokens[index].type == LAMBDA) {
@@ -96,7 +96,7 @@ bool SyntaxTree::ConstructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
             throwException(ALLOCATION_ERROR);
         }
         subTree->left->type = ABSTRACTION;
-        return ConstructParseTreeAbstr(tokens, index, subTree->left);
+        return constructParseTreeAbstr(tokens, index, subTree->left);
     }
 
     //Parse the Atomic
@@ -105,11 +105,11 @@ bool SyntaxTree::ConstructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
         throwException(ALLOCATION_ERROR);
     }
     subTree->left->type = ATOMIC;
-    return ConstructParseTreeAtom(tokens, index, subTree->left);
-} //SyntaxTree::ConstructParseTreeSub
+    return constructParseTreeAtom(tokens, index, subTree->left);
+} //SyntaxTree::constructParseTreeAbstr
 
 
-bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree)
+bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     if (tokens[index].type == VAR) {
         subTree->varName = tokens[index].varName;
@@ -117,9 +117,11 @@ bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & in
     }
 
     if (tokens[index].type == LEFT_BRACKET) {
-        //Check for empty expression
         if (index + 1 < tokens.size() && tokens[index + 1].type == RIGHT_BRACKET) {
             throwException(EMPTY_BRACKET_EXPRESSION);
+        }
+        if (index + 1 >= tokens.size()) {
+            throwException(UNPAIRED_LEFT_BRACKET);
         }
         //Parse the sub-expression
         index++;
@@ -128,13 +130,15 @@ bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & in
             throwException(ALLOCATION_ERROR);
         }
         subTree->left->type = APPLICATION;
-        if (!ConstructParseTreeApp(tokens, index, subTree->left)){
+        if (!constructParseTreeApp(tokens, index, subTree->left)){
             return false;
         }
+
         // Check for a matching right_bracket
         if (tokens[index].type != RIGHT_BRACKET) {
             throwException(UNPAIRED_LEFT_BRACKET);
         }
+
         return true;
     }
 
@@ -143,7 +147,7 @@ bool SyntaxTree::ConstructParseTreeAtom(std::vector<Token> & tokens, size_t & in
     }
 
     return false;
-} //SyntaxTree::ConstructParseTreeSub
+} //SyntaxTree::constructParseTreeAtom
 
 
 void SyntaxTree::print() {

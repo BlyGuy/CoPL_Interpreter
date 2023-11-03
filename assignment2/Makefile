@@ -17,7 +17,9 @@ TARGET = interpreter
 CC = g++
 CFLAGS = -march=native -I$(INC_DIR) -Wall -Wextra -Wpedantic
 
-.PHONY: all exec clean debug release
+.PHONY: all exec clean debug release build
+#build the program
+build: release
 
 #release build
 release: CFLAGS += -O3 -DNDEBUG
@@ -40,5 +42,7 @@ $(TARGET): $(OBJECTS)
 #utility commands
 exec:
 	./${TARGET}
+run:
+	./${TARGET} < positives.txt
 clean:
 	rm -f ${OBJECTS} ${DEPS} ${TARGET}

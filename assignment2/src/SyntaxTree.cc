@@ -26,7 +26,7 @@ SyntaxTree::~SyntaxTree()
 
 SyntaxTree::SyntaxTree(Lexer & lex)
 {
-    constructParseTree(lex.tokens); //Creëert Segmentation fault! :(
+    constructParseTree(lex.tokens);
 } //SyntaxTree::SyntaxTree(Lexer)
 
 
@@ -43,18 +43,18 @@ bool SyntaxTree::constructParseTree(std::vector<Token> & tokens)
     //Parse the first application
     root->type = APPLICATION;
     size_t index = 0;
-    size_t symTableIndex = 0;
-    bool result = constructParseTreeApp(tokens, index, symTableIndex, root);
+    bool result = constructParseTreeApp(tokens, index, root);
 
-    //The first application is not allowed to end with a right_bracket
-    if (tokens[index].type == RIGHT_BRACKET) {
+    //Checking if parsing finished prematurely
+    if (index < tokens.size()) {
+        //this happens due to a unpaired right-bracket in the top layer
         throwException(UNPAIRED_RIGHT_BRACKET);
     }
     return result;
-} //Syntaxtree::ConstructParseTree
+} //Syntaxtree::constructParseTree
 
 
-bool SyntaxTree::constructParseTreeApp(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree)
+bool SyntaxTree::constructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     //Parse the Abstraction
     subTree->left = new Node;
@@ -62,7 +62,7 @@ bool SyntaxTree::constructParseTreeApp(std::vector<Token> & tokens, size_t & ind
         throwException(ALLOCATION_ERROR);
     }
     subTree->left->type = ABSTRACTION;
-    if (!constructParseTreeAbstr(tokens, index, symTableIndex, subTree->left)) {
+    if (!constructParseTreeAbstr(tokens, index, subTree->left)) {
         return false;
     } 
 
@@ -77,21 +77,18 @@ bool SyntaxTree::constructParseTreeApp(std::vector<Token> & tokens, size_t & ind
         throwException(ALLOCATION_ERROR);
     }
     subTree->right->type = APPLICATION;
-    return constructParseTreeApp(tokens, index, symTableIndex, subTree->right);
-} //SyntaxTree::ConstructParseTreeSub
+    return constructParseTreeApp(tokens, index, subTree->right);
+} //SyntaxTree::constructParseTreeApp
 
-bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree)
+bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     //Check for a lambda-expression and parse one if needed
     if (tokens[index].type == LAMBDA) {
         if (!(index + 2 < tokens.size() && tokens[index + 1].type == VAR)) {
             throwException(LAMBDA_MISSING_VAR_AND_EXPRESSION);
         }
-        //Connect the Lambda-variable directly to the node
-        //And create a new SymTableEntry for this variable
-        symTable.push_back({tokens[index + 1].varName, true, symTableIndex});
-        subTree->symTableID = symTableIndex;
-        symTableIndex++;
+        //Store the Lambda-variable directly in the node
+        subTree->varName = tokens[index + 1].varName;
         //Parse the following Abstraction
         index += 2;
         subTree->left = new Node;
@@ -99,7 +96,7 @@ bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
             throwException(ALLOCATION_ERROR);
         }
         subTree->left->type = ABSTRACTION;
-        return constructParseTreeAbstr(tokens, index, symTableIndex, subTree->left);
+        return constructParseTreeAbstr(tokens, index, subTree->left);
     }
 
     //Parse the Atomic
@@ -108,24 +105,26 @@ bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
         throwException(ALLOCATION_ERROR);
     }
     subTree->left->type = ATOMIC;
-    return constructParseTreeAtom(tokens, index, symTableIndex, subTree->left);
-} //SyntaxTree::ConstructParseTreeSub
+    // subTree->type = ATOMIC;
+    return constructParseTreeAtom(tokens, index, subTree->left);
+    // return constructParseTreeAtom(tokens, index, subTree);
+} //SyntaxTree::constructParseTreeAbstr
 
 
-bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree)
+bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree)
 {
     if (tokens[index].type == VAR) {
-        //Create a new SymTableEntry for the variable
-        symTable.push_back({tokens[index].varName, false, symTableIndex});
-        subTree->symTableID = symTableIndex;
-        symTableIndex++;
+        subTree->varName = tokens[index].varName;
         return true;
     }
 
     if (tokens[index].type == LEFT_BRACKET) {
-        // if (index < tokens.size && tokens[index + 1] == RIGHT_BRACKET) {
-        //     throwException(EMPTY_BRACKET_EXPRESSION);
-        // }
+        if (index + 1 < tokens.size() && tokens[index + 1].type == RIGHT_BRACKET) {
+            throwException(EMPTY_BRACKET_EXPRESSION);
+        }
+        if (index + 1 >= tokens.size()) {
+            throwException(UNPAIRED_LEFT_BRACKET);
+        }
         //Parse the sub-expression
         index++;
         subTree->left = new Node;
@@ -133,7 +132,7 @@ bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & in
             throwException(ALLOCATION_ERROR);
         }
         subTree->left->type = APPLICATION;
-        if (!constructParseTreeApp(tokens, index, symTableIndex, subTree->left)){
+        if (!constructParseTreeApp(tokens, index, subTree->left)){
             return false;
         }
         // Check for a matching right_bracket
@@ -148,7 +147,7 @@ bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & in
     }
 
     return false;
-} //SyntaxTree::ConstructParseTreeSub
+} //SyntaxTree::constructParseTreeAtom
 
 bool SyntaxTree::converse(Node* subTree, Token & var, std::string subs) 
 {
@@ -156,9 +155,56 @@ bool SyntaxTree::converse(Node* subTree, Token & var, std::string subs)
     return false;
 } //SyntaxTree::converse
 
-bool SyntaxTree::reduce(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot)
+void SyntaxTree::reduce()
 {
+    
+    /**
+     * @brief free parking
+     *  | 🚘 | 🚘 | 🚘 | 🚚 | 🗿
+     * 
+     *  | 🚘 |    |    |    |    | 🚘 | 
+     * 
+     *  | 🚘 | 🚘 | 🚘 | 🚘 | 🚚🚚🚚|
+     * 
+     *  | 🚘 | 🐟 | 🚜 | 🦼 | 🚛 | i |
+     * 
+     *  | 🚘 | 🚎 | 🚒 | 🚁 | 🚀 | 🛸 | 
+     * 
+     *  |🚲🚲🚲🚲|   | 🚢 | 🚘 | ⚽🤶
+     * 
+     * 🚏 🕺 🚎
+     */
+
+     
     //TODO!!!
+
+    int count = 0;
+    int index = 0;
+    bool reducePossible = true;
+    while (reducePossible == true && count < MAX_REDUCE )
+    {
+        /**
+         * @brief M en N
+         * M is een lambda abstraction
+         * N is een application op M (indirect of direct maar de eerste)
+         */
+        
+        Node* M, N;
+        /**
+         * @brief vind M
+         * bij app: eerst links kijken dan rechts
+         * bij lambda: is het daadwerkelijk een lambda zo ja bingo
+         * anders kijk je naar atomic daaronder
+         * bij atom: is het een var, jammer
+         *  zo nee, check bracket expr
+         * M is een lambda abstraction
+         * N is een application op M (indirect of direct maar de eerste)
+         */
+        //
+        //vind M en N
+        //result = findMN(root);
+    }
+    
     //Loop variables af in M
     //  - Hoe? recursief lol
     //Bij variable -> perform substitution 
@@ -169,11 +215,44 @@ bool SyntaxTree::reduce(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar,
     //      - WT: Laat de parent direct naar N wijzen
     //      - Niet: Laat de parent naar een kopie van N wijzen
     
+    //reduceSub();
+}
+
+bool SyntaxTree::findLambda(Node* subtree)
+{
+    if (subtree == nullptr) {
+        return false;
+    }
+    
+    switch (subtree->type)
+    {
+    case APPLICATION:
+        return findLambda(subtree->left) || findLambda(subtree->right);
+    case ABSTRACTION:
+        if (!(subtree->varName.empty())) {
+            return true;
+        }
+        return findLambda(subtree->left);
+    case ATOMIC:
+        return findLambda(subtree->left);
+    default:
+        return false;
+    }
+} //SyntaxTree::findLambda
+
+
+bool SyntaxTree::reduceSub(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot)
+{
+
+    
+    
+
+    
     // subTreeVar = subTreeSubst;               //x:=N
     // subTreeRoot->left->left = subTreeRoot->left; //
     // subTreeRoot->right = nullptr;
     return false;
-} //SyntaxTree::reduce
+} //SyntaxTree::reduceSub
 
 void SyntaxTree::print() {
     print(root);
@@ -192,14 +271,14 @@ void SyntaxTree::print(Node* node)
         print(node->right);
         break;
     case ABSTRACTION:
-        if (!(symTable[node->symTableID].varName.empty())) {
-            std::cout << '\\' << symTable[node->symTableID].varName << ' ';
+        if (!(node->varName.empty())) {
+            std::cout << '\\' << node->varName << ' ';
         }
         print(node->left);
         break;
     case ATOMIC:
-        if (!(symTable[node->symTableID].varName.empty())) {
-            std::cout << symTable[node->symTableID].varName << ' ';
+        if (!(node->varName.empty())) {
+            std::cout << node->varName << ' ';
         } else {
             std::cout << "( ";
             print(node->left);

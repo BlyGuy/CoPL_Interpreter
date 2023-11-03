@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <vector>
-#include <climits>
+#include <string>
 #include "Lexer.h"
-#include "SymTable.h"
 #include "errors.h"
+#include "constants.h"
 
 /**
  * Unambiguous grammar definition:
@@ -16,7 +16,7 @@
  * <Abstraction>    ::= LAMBDA VAR <Abstraction>
  *                    | <Atomic>
  * <Atomic>         ::= LEFT_BRACKET <Application> RIGHT_BRACKET
- *                    | VAR                                                 
+ *                    | VAR
  * First(<Atomic>) = {LEFT_BRACKET, VAR}
  * First(<Abstraction>) = {LEFT_BRACKET, VAR, LAMBDA}
  * First(<Application>) = First{Abstraction}
@@ -31,7 +31,7 @@ enum ENodeType {
 class Node {
 public:
     ENodeType type;
-    size_t symTableID = ULONG_MAX;
+    std::string varName = "";
     Node* left = nullptr;
     Node* right = nullptr;
 
@@ -42,47 +42,54 @@ class SyntaxTree
 {
 private:
     Node* root; //root node van de parse-tree
-    std::vector<SymTableEntry> symTable; //SymTableEntry vector that contains variable information
     
     /**
     * @brief constructs the application from the parsetree recursively
-    *        with the given information from the lexical analyzer     
+    *        with a given token-string   
     *
-    * @param lex       the lexical analyzer in question
+    * @param tokens    the tokens in question
     * @param index     the index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the application is valid and has been succesfully
                         represented in the parse tree
     * @return false    the application is invalid
     */
-    bool constructParseTreeApp(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree);
-
+    bool constructParseTreeApp(std::vector<Token> & tokens, size_t & index, Node* subTree);
     
     /**
     * @brief constructs the abstraction from the parsetree recursively
-    *        with the given information from the lexical analyzer    
+    *        with a given token-string    
     *
-    * @param lex       the lexical analyzer in question
+    * @param tokens    the tokens in question
     * @param index     the index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the abstraction is valid and has been succesfully
                         represented in the parse tree
     * @return false    the abstraction is invalid
     */
-    bool constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree);
+    bool constructParseTreeAbstr(std::vector<Token> & tokens, size_t & index, Node* subTree);
     
     /**
     * @brief constructs the atom from the parsetree recursively
-    *        with the given information from the lexical analyzer    
+    *        with the given token-string    
     *
-    * @param lex       the lexical analyzer in question
+    * @param tokens    the tokens in question
     * @param index     the index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the atom is valid and has been succesfully
                         represented in the parse tree
     * @return false    the atom is invalid
     */    
-    bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, size_t & symTableIndex, Node* subTree);
+    bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
+
+    /**
+     * @brief search a lambda expression recursively in the subtree
+     * 
+     * @param subtree 
+     * @return true: lambda expression found
+     * @return false: no lambda expression in subtree 
+     */
+    bool findLambda(Node* subtree);
 
     /**
     * @brief prints the syntax tree recursively
@@ -96,10 +103,9 @@ public:
     ~SyntaxTree();
 
     /**
-    * @brief constructs the parse tree with the given information
-            from the lexical analyzer
+    * @brief constructs the parse tree with a given token-string
     * 
-    * @param lex       the lexical analyzer in question
+    * @param tokens    the tokens
     * @return true     the expression was valid and has
     *                  been succesfully represented in a parse tree
     * @return false    the expression is invalid
@@ -107,9 +113,32 @@ public:
     */
     bool constructParseTree(std::vector<Token> & tokens);
 
+
+    /**
+     * @brief converses the expression, λyM[x:=y]
+     * 
+     * @param subTree the root of the expression, M
+     * @param var the variable to be substituted, x
+     * @param subs the substitute variable, y
+     * @return true the expression has been succesfully conversed
+     * @return false the expression has not been conversed
+     */
     bool converse(Node* subTree, Token & var, std::string subs);
 
-    bool reduce(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot);
+    void reduce();
+
+    /**
+     * @brief beta reduces the expression, M[x:=N]
+     * 
+     * @param subTreeSubst the substitute expression, N
+     * @param subTreeExpr the expression to be reduced, M
+     * @param subTreeVar the variable to be substituted
+     * @param subTreeRoot the root of the expression
+     * @return true the expression has been succesfully reduced
+     * @return false the expression has not been reduced
+     */
+    bool reduceSub(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot);
+
 
     /**
      * @brief prints the syntax tree

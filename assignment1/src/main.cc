@@ -18,7 +18,7 @@ int main() {
         SyntaxTree tree;
 
         //convert tokenStream to SyntaxTree
-        if (!tree.ConstructParseTree(lex.tokens)) {
+        if (!tree.constructParseTree(lex.tokens)) {
             //Invalid expression: print error and exit
             throwException(UNKNOWN);
         } else {

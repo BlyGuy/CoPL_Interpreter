@@ -12,7 +12,7 @@ Lexer::Lexer(std::string input)
 
 Lexer::~Lexer()
 {
-
+    tokens.clear();
 } //Lexer::~Lexer
 
 std::string Lexer::parseVariable(const std::string input, const size_t inputLength, size_t & index)
