@@ -100,14 +100,14 @@ bool SyntaxTree::constructParseTreeAbstr(std::vector<Token> & tokens, size_t & i
     }
 
     //Parse the Atomic
-    subTree->left = new Node;
-    if (subTree->left == nullptr) {
-        throwException(ALLOCATION_ERROR);
-    }
-    subTree->left->type = ATOMIC;
-    // subTree->type = ATOMIC;
-    return constructParseTreeAtom(tokens, index, subTree->left);
-    // return constructParseTreeAtom(tokens, index, subTree);
+    // subTree->left = new Node;
+    // if (subTree->left == nullptr) {
+    //     throwException(ALLOCATION_ERROR);
+    // }
+    // subTree->left->type = ATOMIC;
+    subTree->type = ATOMIC;
+    //return constructParseTreeAtom(tokens, index, subTree->left);
+    return constructParseTreeAtom(tokens, index, subTree);
 } //SyntaxTree::constructParseTreeAbstr
 
 
@@ -218,36 +218,51 @@ void SyntaxTree::reduce()
     //reduceSub();
 }
 
-bool SyntaxTree::findLambda(Node* subtree)
+Node* SyntaxTree::findLambda(Node* subtree)
 {
     if (subtree == nullptr) {
-        return false;
+        return nullptr;
     }
+
+    Node* lambda = nullptr;
     
     switch (subtree->type)
     {
     case APPLICATION:
-        return findLambda(subtree->left) || findLambda(subtree->right);
+        lambda = findLambda(subtree->left);
+        if (lambda == nullptr)
+            return findLambda(subtree->right);
+        else 
+            return lambda;
     case ABSTRACTION:
         if (!(subtree->varName.empty())) {
-            return true;
+            return subtree;
         }
-        return findLambda(subtree->left);
+        break;
+        // return true;
     case ATOMIC:
         return findLambda(subtree->left);
     default:
-        return false;
+        return nullptr;
     }
 } //SyntaxTree::findLambda
 
 
 bool SyntaxTree::reduceSub(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot)
 {
+    switch (subTreeRoot->type)
+    {
+    case APPLICATION:
+        // reduceSub(subTreeRoot->left);
+        // reduceSub(subTreeRoot->right);
+        break;
+    case LAMBDA:
+    
+    default:
+        break;
+    }
 
-    
-    
 
-    
     // subTreeVar = subTreeSubst;               //x:=N
     // subTreeRoot->left->left = subTreeRoot->left; //
     // subTreeRoot->right = nullptr;

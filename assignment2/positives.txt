@@ -1,0 +1,9 @@
+a b c d e
+\
+x
+x
+\x x
+\x\y (arrr mate) x
+(\z z)
+
+\x (\y y x) a

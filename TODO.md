@@ -8,6 +8,7 @@
 - [x] Implement EMPTY_BRACKETS_EXPRESSION-error in error-messages
 - [x] Finish code documentation using comments
 - [x] Standardize repo for TA testing framework
+- [ ] Author blocks at the beginning of each file
 
 ### Optional
 
@@ -17,7 +18,8 @@
 ## Assigmnent 2
 
 - [x] Merging the positive changes of Assignment 1 into Assignment 2
-- [ ] File-reading functionality
+- [x] File-reading functionality
+- [ ] Author blocks at the beginning of each file
 - [ ] Variable Bound checking implentation using direct recursion
 - [x] Remove Symtable
 - [ ] Beta reduction

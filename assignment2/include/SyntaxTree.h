@@ -83,13 +83,12 @@ private:
     bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
     /**
-     * @brief search a lambda expression recursively in the subtree
+     * @brief search first lambda expression recursively in the subtree, left precedence
      * 
-     * @param subtree 
-     * @return true: lambda expression found
-     * @return false: no lambda expression in subtree 
+     * @param subtree the subtree to be searched
+     * @return Node* to the lambda
      */
-    bool findLambda(Node* subtree);
+    Node* findLambda(Node* subtree);
 
     /**
     * @brief prints the syntax tree recursively
