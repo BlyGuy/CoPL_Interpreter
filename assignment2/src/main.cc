@@ -1,3 +1,11 @@
+/**
+ * @file main.cc
+ * @author Marc Hoek
+ * @author
+ * @author N.I. van Laarhoven
+ * @brief main file for testing the interpreter
+ * @date ????
+ */
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -49,8 +57,10 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
 
     //TODO: reduce parse tree
-    //tree.reduce();
-    //tree.print();
-    //std::cout << std::endl;
+    std::cout << "reduced: " << std::endl;
+    if (!tree.reduce())
+        std::cout << "Reduction limit reached :/" << std::endl;
+    tree.print();
+    std::cout << std::endl;
     return EXIT_SUCCESS;
 }

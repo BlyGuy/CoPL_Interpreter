@@ -10,6 +10,6 @@
 
 //The maximum amount of Beta-reductions allowed on a lambda-expression 
 //Prevents infinite reductions from halting the program
-const int MAX_REDUCE = 1000;
+const int MAX_REDUCTIONS = 1000;
 
 #endif //CONSTANTS_H

@@ -1,10 +1,11 @@
 /**
  * @file errors.h
- * @author TODO
- * @author Joshua Lelipaly (s3329941)
- * @author Marc Hoek (s3157520)
- * @brief Token header file
- * @date 2023-09-24
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author N.I. van Laarhoven
+ * @brief Header file containing errors
+ *        and error-handling functions
+* @date 2023-09-24
  */
 #ifndef ERRORS_H
 #define ERRORS_H

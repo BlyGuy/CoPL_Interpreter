@@ -1,3 +1,13 @@
+/**
+ * @file SyntaxTree.h
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author N.I. van Laarhoven
+ * @brief Header file for the SyntaxTree class.
+ *        Functions as a syntactical analyser
+ *        and a resolver of lambda expressions
+ * @date ????
+ */
 #ifndef SYNTAX_TREE_H
 #define SYNTAX_TREE_H
 
@@ -83,12 +93,43 @@ private:
     bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
     /**
-     * @brief search first lambda expression recursively in the subtree, left precedence
+     * @brief search first parent of a lambda expression recursively in the subtree,
+     *        left precedence is applied
      * 
      * @param subtree the subtree to be searched
-     * @return Node* to the lambda
+     * @return Node* to the parent of a lambda expression
      */
-    Node* findLambda(Node* subtree);
+    Node* findLambdaParent(Node* subtree);
+
+    /**
+     * @brief performs beta-reduction on M with N
+     * 
+     * @param M The lambda abstraction that N is applied to
+     * @param N The subtree that needs to be applied to M
+     * @pre M and N are not NULL-pointers (real subtree)
+     * @return true TODO
+     * @return false TODO
+     */
+    bool betaReduce(Node* M, Node* N);
+
+    /**
+     * @brief actually performs the beta reduction, (λyM)N -> M[x:=N]
+     * 
+     * @param M TODO
+     * @param N TODO
+     * @param Mvar TODO
+     * @return true 
+     * @return false 
+     */
+    bool betaReduceSub(Node* & subTree, const Node * N, const std::string Mvar);
+    
+    /**
+     * @brief Copies the contents of copyTree to the destination Node
+     * 
+     * @param copyTree The subtree that gets copied
+     * @return A pointer to the copied subtree
+     */
+    Node* copy(const Node * copyTree);
 
     /**
     * @brief prints the syntax tree recursively
@@ -124,7 +165,13 @@ public:
      */
     bool converse(Node* subTree, Token & var, std::string subs);
 
-    void reduce();
+    /**
+     * @brief Performs beta-reduction and alpha-renaming on the syntaxtree
+     *        until it is no longer possible or a reduction limit has been reached
+     * @return true No reductions possible, expression fully reduced
+     * @return false Reductions still possible, reduction limit reached
+     */
+    bool reduce();
 
     /**
      * @brief beta reduces the expression, M[x:=N]
@@ -136,7 +183,7 @@ public:
      * @return true the expression has been succesfully reduced
      * @return false the expression has not been reduced
      */
-    bool reduceSub(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot);
+    bool reduceSub(Node* subTree);
 
 
     /**

@@ -1,5 +1,22 @@
 #include "SyntaxTree.h"
 
+/**
+ * @brief free parking
+ *  | 🚘 | 🚘 | 🚘 | 🚚 | 🗿
+ * 
+ *  | 🚘 |    |    |    |    | 🚘 | 
+ * 
+ *  | 🚘 | 🚘 | 🚘 | 🚘 | 🚚🚚🚚|
+ * 
+ *  | 🚘 | 🐟 | 🚜 | 🦼 | 🚛 | i |
+ * 
+ *  | 🚘 | 🚎 | 🚒 | 🚁 | 🚀 | 🛸 | 
+ * 
+ *  |🚲🚲🚲🚲|   | 🚢 | 🚘 | ⚽🤶
+ * 
+ * 🚏 🕺 🚎
+ */
+
 // NODE-CLASS FUNCTIONS //
 
 Node::~Node() {
@@ -155,119 +172,150 @@ bool SyntaxTree::converse(Node* subTree, Token & var, std::string subs)
     return false;
 } //SyntaxTree::converse
 
-void SyntaxTree::reduce()
-{
-    
-    /**
-     * @brief free parking
-     *  | 🚘 | 🚘 | 🚘 | 🚚 | 🗿
-     * 
-     *  | 🚘 |    |    |    |    | 🚘 | 
-     * 
-     *  | 🚘 | 🚘 | 🚘 | 🚘 | 🚚🚚🚚|
-     * 
-     *  | 🚘 | 🐟 | 🚜 | 🦼 | 🚛 | i |
-     * 
-     *  | 🚘 | 🚎 | 🚒 | 🚁 | 🚀 | 🛸 | 
-     * 
-     *  |🚲🚲🚲🚲|   | 🚢 | 🚘 | ⚽🤶
-     * 
-     * 🚏 🕺 🚎
-     */
-
-     
-    //TODO!!!
-
-    int count = 0;
-    int index = 0;
+bool SyntaxTree::reduce()
+{   
+    int i = 0; // Reduction counter
     bool reducePossible = true;
-    while (reducePossible == true && count < MAX_REDUCE )
+    
+    for (i = 0; reducePossible && i < MAX_REDUCTIONS; i++)
     {
-        /**
-         * @brief M en N
-         * M is een lambda abstraction
-         * N is een application op M (indirect of direct maar de eerste)
-         */
-        
-        Node* M, N;
-        /**
-         * @brief vind M
-         * bij app: eerst links kijken dan rechts
-         * bij lambda: is het daadwerkelijk een lambda zo ja bingo
-         * anders kijk je naar atomic daaronder
-         * bij atom: is het een var, jammer
-         *  zo nee, check bracket expr
-         * M is een lambda abstraction
-         * N is een application op M (indirect of direct maar de eerste)
-         */
-        //
-        //vind M en N
-        //result = findMN(root);
+        reducePossible = reduceSub(root);
+    }
+
+    return !reducePossible; //Indicates if the limit was reached
+} //SyntaxTree::reduceTree
+
+bool SyntaxTree::reduceSub(Node* subTree)
+{
+    if (subTree == nullptr)
+        return false; // No reduction possible
+    
+    
+    if (subTree->type == APPLICATION)
+    {
+        bool reductionHappened = false;
+        // Recursively reduce its children
+        reductionHappened = reduceSub(subTree->left);
+        reductionHappened |= reduceSub(subTree->right);
+        // Reduce the parent
+        if (subTree->right != nullptr) {
+            Node* parent = findLambdaParent(subTree);
+            if (parent == nullptr)
+                return reductionHappened;
+            Node* M = nullptr;
+            if (parent->left->type == ABSTRACTION)
+                M = parent->left;
+            else 
+                M = parent->right;
+            if (M->left != nullptr){
+                //substitute all variables bound to M with N
+                betaReduce(M, subTree->right);
+                //remove lambda expression M
+                Node* deletePtr = M;
+                parent->left = M->left;
+                deletePtr->left = nullptr;
+                delete deletePtr;
+                //remove applicant N
+                delete subTree->right;
+                subTree->right = nullptr;
+                //Reduction complete! :D
+                return true;
+            }
+        }
+        return reductionHappened;
+    }
+
+    //Otherwise reduce your left-child
+    return reduceSub(subTree->left);
+} //SyntaxTree::reduceSub
+
+bool SyntaxTree::betaReduce(Node * M, Node * N)
+{
+    return betaReduceSub(M->left, N, M->varName);
+    
+} //SyntaxTree::betaReduce
+
+bool SyntaxTree::betaReduceSub(Node* & subTree, const Node * N, const std::string Mvar)
+{
+    if (subTree == nullptr)
+        return false;
+    
+    bool result = false; //did we reduce?
+    switch (subTree->type) {
+    case APPLICATION:
+        result = betaReduceSub(subTree->left, N, Mvar);
+        result |= betaReduceSub(subTree->right, N, Mvar);
+        return result;
+    case ABSTRACTION:
+        return betaReduceSub(subTree->left, N, Mvar);
+    case ATOMIC:
+        //TODO: check voor alpha renaming
+        if (subTree->varName == Mvar)
+        {
+            subTree = copy(N);
+            return true;
+        }
+        return betaReduceSub(subTree->left, N, Mvar);
+    default:
+        return false;
     }
     
-    //Loop variables af in M
-    //  - Hoe? recursief lol
-    //Bij variable -> perform substitution 
-    //      if bound == true && lambdaVar = var in M 
-    //      (wss niet boundID = het ID van M )
-    // 
-    //  - Hoe? Wishful thinking of niet
-    //      - WT: Laat de parent direct naar N wijzen
-    //      - Niet: Laat de parent naar een kopie van N wijzen
     
-    //reduceSub();
-}
+} //SyntaxTree::betaReduce
 
-Node* SyntaxTree::findLambda(Node* subtree)
+Node* SyntaxTree::copy(const Node * copyTree)
 {
-    if (subtree == nullptr) {
+    if (copyTree == nullptr) {
         return nullptr;
     }
 
-    Node* lambda = nullptr;
+    Node* newTree = new Node;
+    if (newTree == nullptr)
+        throwException(ALLOCATION_ERROR); //alloceren ging fout
     
-    switch (subtree->type)
+    //kopieer de waardes van subTree in newTree
+    newTree->type = copyTree->type;
+    newTree->varName = copyTree->varName; //TODO: werkt dit ook voor chars?
+
+    //kopieer de rest van de subTree
+    newTree->left = copy(copyTree->left);
+    newTree->right = copy(copyTree->right);
+
+    return newTree;
+} //SyntaxTree::copyTree
+
+Node* SyntaxTree::findLambdaParent(Node* subTree)
+{
+    if (subTree == nullptr) {
+        return nullptr;
+    }
+    
+    Node* lambda = nullptr;
+    switch (subTree->type)
     {
     case APPLICATION:
-        lambda = findLambda(subtree->left);
+        if ((subTree->left  != nullptr && subTree->left->type  == ABSTRACTION) ||
+            (subTree->right != nullptr && subTree->right->type == ABSTRACTION))
+            return subTree;
+        
+        //Not a direct parent, keep looking
+        lambda = findLambdaParent(subTree->left);
         if (lambda == nullptr)
-            return findLambda(subtree->right);
-        else 
-            return lambda;
+            return findLambdaParent(subTree->right);
+        return lambda;
     case ABSTRACTION:
-        if (!(subtree->varName.empty())) {
-            return subtree;
-        }
-        break;
-        // return true;
+        return findLambdaParent(subTree->left); //I am not the parent :(
     case ATOMIC:
-        return findLambda(subtree->left);
+        if (subTree->left != nullptr && subTree->left->type == ABSTRACTION)
+            return subTree;
+        //Not a direct parent, keep looking
+        return findLambdaParent(subTree->left);
     default:
         return nullptr;
     }
 } //SyntaxTree::findLambda
 
 
-bool SyntaxTree::reduceSub(Node* subTreeSubst, Node* subTreeExpr, Node* subTreeVar, Node* subTreeRoot)
-{
-    switch (subTreeRoot->type)
-    {
-    case APPLICATION:
-        // reduceSub(subTreeRoot->left);
-        // reduceSub(subTreeRoot->right);
-        break;
-    case LAMBDA:
-    
-    default:
-        break;
-    }
-
-
-    // subTreeVar = subTreeSubst;               //x:=N
-    // subTreeRoot->left->left = subTreeRoot->left; //
-    // subTreeRoot->right = nullptr;
-    return false;
-} //SyntaxTree::reduceSub
 
 void SyntaxTree::print() {
     print(root);

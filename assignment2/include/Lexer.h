@@ -1,3 +1,11 @@
+/**
+ * @file Lexer.h
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author N.I. van Laarhoven
+ * @brief Lexical analyser header file
+ * @date ????
+ */
 #ifndef LEXER_H
 #define LEXER_H
 

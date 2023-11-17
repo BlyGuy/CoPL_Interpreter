@@ -1,9 +1,10 @@
 /**
  * @file Token.h
- * @author Joshua Lelipaly (s3329941)
- * @author Marc Hoek (s3157520)
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author N.I. van Laarhoven
  * @brief Token header file
- * @date 2023-09-24
+ * @date ????
  */
 #ifndef TOKENS_H
 #define TOKENS_H
