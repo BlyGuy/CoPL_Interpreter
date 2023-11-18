@@ -10,7 +10,8 @@ const char* errorMessages[] =
     "A left-bracket near the end of the input-string is either missing an expression or following a right bracket", //UNFINISHED_BRACKET_EXPRESSION
     "An expression inside of brackets is not allowed to be empty", //EMPTY_BRACKET_EXPRESSION
     "A left bracket is missing a following right bracket", //UNPAIRED_LEFT_BRACKET
-    "A right bracket was entered before a preceding left bracket" //UNPAIRED_RIGHT_BRACKET
+    "A right bracket was entered before a preceding left bracket", //UNPAIRED_RIGHT_BRACKET
+    "Parsing ended prematurely. This is caused by a right bracket missing a preceding left bracket" //UNFINISHED_PARSING
 };
 
 void throwException(EErrorType type){

@@ -65,7 +65,7 @@ bool SyntaxTree::constructParseTree(std::vector<Token> & tokens)
     //Checking if parsing finished prematurely
     if (index < tokens.size()) {
         //this happens due to a unpaired right-bracket in the top layer
-        throwException(UNPAIRED_RIGHT_BRACKET);
+        throwException(UNFINISHED_PARSING);
     }
     return result;
 } //Syntaxtree::constructParseTree
@@ -265,19 +265,18 @@ bool SyntaxTree::betaReduceSub(Node* & subTree, const Node * N, const std::strin
 
 Node* SyntaxTree::copy(const Node * copyTree)
 {
-    if (copyTree == nullptr) {
+    if (copyTree == nullptr)
         return nullptr;
-    }
 
     Node* newTree = new Node;
     if (newTree == nullptr)
-        throwException(ALLOCATION_ERROR); //alloceren ging fout
+        throwException(ALLOCATION_ERROR);
     
-    //kopieer de waardes van subTree in newTree
+    //Copy the current Node into the new Node
     newTree->type = copyTree->type;
-    newTree->varName = copyTree->varName; //TODO: werkt dit ook voor chars?
+    newTree->varName = copyTree->varName;
 
-    //kopieer de rest van de subTree
+    //Copy the rest of the subTree
     newTree->left = copy(copyTree->left);
     newTree->right = copy(copyTree->right);
 
