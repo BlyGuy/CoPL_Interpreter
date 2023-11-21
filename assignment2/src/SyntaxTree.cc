@@ -166,11 +166,66 @@ bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & in
     return false;
 } //SyntaxTree::constructParseTreeAtom
 
-bool SyntaxTree::converse(Node* subTree, Token & var, std::string subs) 
+// ALPHA-CONVERSION FUNCTIONS //
+
+bool SyntaxTree::alphaConverse(Node* M, const Node* N) 
 {
-    //var.varName = 
+    std::vector<std::string> Mbound, Nbound, conflicts;
+    getBoundVars(Mbound, M);
+    getBoundVars(Nbound, N);
+    getConflictVars(conflicts, Mbound, Nbound, N);
+
+    if (!conflicts.empty()) {
+        resolveConflicts(conflicts, Mbound, M);
+        return true;
+    }
+
     return false;
-} //SyntaxTree::converse
+} //SyntaxTree::alphaConverse
+
+void SyntaxTree::getBoundVars(std::vector<std::string> & result, const Node* subTree)
+{
+    if (subTree == nullptr) return;
+
+    if (subTree->type == ABSTRACTION)
+        result.push_back(subTree->varName); //bound
+    
+    getBoundVars(result, subTree->left);
+    getBoundVars(result, subTree->right);
+} //SyntaxTree::getBoundVars
+
+void SyntaxTree::getConflictVars(std::vector<std::string> & result, const std::vector<std::string> Mbound, const std::vector<std::string> Nbound, const Node* subTree)
+{
+    if (subTree == nullptr) return;
+
+    if (subTree->type == ATOMIC && !subTree->varName.empty() &&
+        containsString(Mbound, subTree->varName) &&
+        !containsString(Nbound, subTree->varName))
+        result.push_back(subTree->varName); //conflict
+    
+    getConflictVars(result, Mbound, Nbound, subTree->left);
+    getConflictVars(result, Mbound, Nbound, subTree->right);
+} //SyntaxTree::getConflictVars
+
+void SyntaxTree::resolveConflicts(const std::vector<std::string> & conflicts, const std::vector<std::string> Mbound, Node* subTree)
+{
+    if (subTree == nullptr) return;
+
+    if (!(subTree->varName.empty())) {
+        for (size_t i = 0; i < conflicts.size(); i++) {
+            if (subTree->varName == conflicts[i]) {
+                do {
+                    subTree->varName += '\'';
+                } while(containsString(Mbound, subTree->varName));
+                break;
+            }
+        }
+    }
+    resolveConflicts(conflicts, Mbound, subTree->left);
+    resolveConflicts(conflicts, Mbound, subTree->right);
+}
+
+// BETA-REDUCTION FUNCTIONS //
 
 bool SyntaxTree::reduce()
 {   
@@ -181,7 +236,7 @@ bool SyntaxTree::reduce()
     {
         reducePossible = reduceSub(root);
     }
-
+    //TODO cleanTree(reduced)
     return !reducePossible; //Indicates if the limit was reached
 } //SyntaxTree::reduceTree
 
@@ -202,13 +257,11 @@ bool SyntaxTree::reduceSub(Node* subTree)
             Node* parent = findLambdaParent(subTree);
             if (parent == nullptr)
                 return reductionHappened;
-            Node* M = nullptr;
-            if (parent->left->type == ABSTRACTION)
-                M = parent->left;
-            else 
-                M = parent->right;
+            Node* M = parent->left;
+            //TODO: N wordt zijn eigen variable
             if (M->left != nullptr){
                 //substitute all variables bound to M with N
+                alphaConverse(M, subTree->right);
                 betaReduce(M, subTree->right);
                 //remove lambda expression M
                 Node* deletePtr = M;
@@ -259,9 +312,17 @@ bool SyntaxTree::betaReduceSub(Node* & subTree, const Node * N, const std::strin
     default:
         return false;
     }
-    
-    
 } //SyntaxTree::betaReduce
+
+// UTILITIES //
+
+bool SyntaxTree::containsString(std::vector<std::string> vec, std::string seekStr)
+{
+    for (size_t i = 0; i < vec.size(); i++) {
+        if (vec[i] == seekStr) return true;
+    }
+    return false;
+} //SyntaxTree::containsString
 
 Node* SyntaxTree::copy(const Node * copyTree)
 {
@@ -285,43 +346,22 @@ Node* SyntaxTree::copy(const Node * copyTree)
 
 Node* SyntaxTree::findLambdaParent(Node* subTree)
 {
-    if (subTree == nullptr) {
-        return nullptr;
-    }
-    
-    Node* lambda = nullptr;
-    switch (subTree->type)
-    {
-    case APPLICATION:
-        if ((subTree->left  != nullptr && subTree->left->type  == ABSTRACTION) ||
-            (subTree->right != nullptr && subTree->right->type == ABSTRACTION))
-            return subTree;
+    if (subTree->left != nullptr) {
+        if ( subTree->left->type == ABSTRACTION)
+            return subTree; //found the parent
         
-        //Not a direct parent, keep looking
-        lambda = findLambdaParent(subTree->left);
-        if (lambda == nullptr)
-            return findLambdaParent(subTree->right);
-        return lambda;
-    case ABSTRACTION:
-        return findLambdaParent(subTree->left); //I am not the parent :(
-    case ATOMIC:
-        if (subTree->left != nullptr && subTree->left->type == ABSTRACTION)
-            return subTree;
-        //Not a direct parent, keep looking
         return findLambdaParent(subTree->left);
-    default:
-        return nullptr;
     }
+    return nullptr;
 } //SyntaxTree::findLambda
 
-
-
-void SyntaxTree::print() {
+void SyntaxTree::print() const
+{
     print(root);
 } //SyntaxTree::print
 
 
-void SyntaxTree::print(Node* node)
+void SyntaxTree::print(Node* node) const
 {
     if (node == nullptr) {
         return;

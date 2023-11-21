@@ -7,9 +7,9 @@
  * @date ????
  */
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <vector>
+#include <string>
 #include "errors.h"
 #include "Token.h"
 #include "Lexer.h"
@@ -58,8 +58,12 @@ int main(int argc, char** argv) {
 
     //TODO: reduce parse tree
     std::cout << "reduced: " << std::endl;
-    if (!tree.reduce())
-        std::cout << "Reduction limit reached :/" << std::endl;
+    if (!tree.reduce()) {
+        std::cerr << "Reduction limit reached :/" << std::endl;
+        tree.print();
+        return 2;//Reduction limit exit-code
+    }
+    //TODO: Tree.cleanParentheses();
     tree.print();
     std::cout << std::endl;
     return EXIT_SUCCESS;

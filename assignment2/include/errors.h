@@ -13,7 +13,7 @@
 #include <iostream>
 
 enum EErrorType {
-    UNKNOWN = 1,
+    UNKNOWN,
     ALLOCATION_ERROR,
     ILLEGAL_CHARACTER,
     EMPTY_EXPRESSION,

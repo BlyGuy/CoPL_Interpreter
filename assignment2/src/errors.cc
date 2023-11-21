@@ -15,6 +15,6 @@ const char* errorMessages[] =
 };
 
 void throwException(EErrorType type){
-    std::cerr << "ERROR: " << errorMessages[type-1] << " :(" << std::endl;
-    exit(type);
+    std::cerr << "ERROR: " << errorMessages[type] << " :(" << std::endl;
+    exit(EXIT_FAILURE);
 } //throwException

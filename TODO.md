@@ -20,10 +20,11 @@
 - [x] Merging the positive changes of Assignment 1 into Assignment 2
 - [x] File-reading functionality
 - [ ] Author blocks at the beginning of each file
-- [ ] Variable Bound checking implentation using direct recursion
+- [x] Variable Bound checking implentation using direct recursion
 - [x] Remove Symtable
-- [ ] Beta reduction
-- [ ] Alpha conversion
+- [x] Beta reduction
+- [x] Alpha conversion
 - [ ] Serious README
+- [ ] Test on all examples in assignment specification
 - [ ] Positive Examples
 - [ ] Negative Examples
