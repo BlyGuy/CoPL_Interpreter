@@ -1,8 +1,8 @@
 /**
  * @file main.cc
  * @author Marc Hoek
- * @author
- * @author N.I. van Laarhoven
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
  * @brief main file for testing the interpreter
  * @date ????
  */
@@ -50,21 +50,16 @@ int main(int argc, char** argv) {
     if (!tree.constructParseTree(lex.tokens)) {
         //Invalid expression: print error and exit
         throwException(UNKNOWN);
-    } else {
-        //Your expression is valid :)
-        tree.print();
     }
-    std::cout << std::endl;
 
-    //TODO: reduce parse tree
-    std::cout << "reduced: " << std::endl;
-    if (!tree.reduce()) {
-        std::cerr << "Reduction limit reached :/" << std::endl;
-        tree.print();
-        return 2;//Reduction limit exit-code
-    }
-    //TODO: Tree.cleanParentheses();
+    //The expression is valid -> perform reductions
+    bool noLimitReached = tree.reduce();
+    //Print the final reduced expression
     tree.print();
     std::cout << std::endl;
-    return EXIT_SUCCESS;
+    //Exit with the right exit-code
+    if (noLimitReached)
+        return EXIT_SUCCESS;
+    else
+        return EXIT_LIMIT_REACHED;
 }

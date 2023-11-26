@@ -168,7 +168,7 @@ bool SyntaxTree::constructParseTreeAtom(std::vector<Token> & tokens, size_t & in
 
 // ALPHA-CONVERSION FUNCTIONS //
 
-bool SyntaxTree::alphaConverse(Node* M, const Node* N) 
+void SyntaxTree::alphaConverse(Node* M, const Node* N) 
 {
     std::vector<std::string> Mbound, Nbound, conflicts;
     getBoundVars(Mbound, M);
@@ -177,10 +177,7 @@ bool SyntaxTree::alphaConverse(Node* M, const Node* N)
 
     if (!conflicts.empty()) {
         resolveConflicts(conflicts, Mbound, M);
-        return true;
     }
-
-    return false;
 } //SyntaxTree::alphaConverse
 
 void SyntaxTree::getBoundVars(std::vector<std::string> & result, const Node* subTree)
@@ -214,16 +211,25 @@ void SyntaxTree::resolveConflicts(const std::vector<std::string> & conflicts, co
     if (!(subTree->varName.empty())) {
         for (size_t i = 0; i < conflicts.size(); i++) {
             if (subTree->varName == conflicts[i]) {
-                do {
-                    subTree->varName += '\'';
-                } while(containsString(Mbound, subTree->varName));
+                size_t index = subTree->varName.size();
+                subTree->varName += 'A';
+                //Append a substring so the resulting varName is not present in Mbound
+                while(containsString(Mbound, subTree->varName)) {
+                    if (subTree->varName[index] >= 'Z')
+                        subTree->varName[index] = 'a';
+                    else if (subTree->varName[index] >= 'z') {
+                        subTree->varName += 'A';
+                        index++;
+                    }
+                    subTree->varName[index] += 1; //go to next letter
+                }
                 break;
             }
         }
     }
     resolveConflicts(conflicts, Mbound, subTree->left);
     resolveConflicts(conflicts, Mbound, subTree->right);
-}
+} //SyntaxTree::resolveConflicts
 
 // BETA-REDUCTION FUNCTIONS //
 
@@ -235,8 +241,8 @@ bool SyntaxTree::reduce()
     for (i = 0; reducePossible && i < MAX_REDUCTIONS; i++)
     {
         reducePossible = reduceSub(root);
+        clean();
     }
-    //TODO cleanTree(reduced)
     return !reducePossible; //Indicates if the limit was reached
 } //SyntaxTree::reduceTree
 
@@ -258,10 +264,11 @@ bool SyntaxTree::reduceSub(Node* subTree)
             if (parent == nullptr)
                 return reductionHappened;
             Node* M = parent->left;
-            //TODO: N wordt zijn eigen variable
+            //Node* N = findApplicant(subTree->right);
             if (M->left != nullptr){
-                //substitute all variables bound to M with N
+                //resolve all conflicts with alpha-conversion
                 alphaConverse(M, subTree->right);
+                //substitute all variables bound to M with N
                 betaReduce(M, subTree->right);
                 //remove lambda expression M
                 Node* deletePtr = M;
@@ -324,6 +331,41 @@ bool SyntaxTree::containsString(std::vector<std::string> vec, std::string seekSt
     return false;
 } //SyntaxTree::containsString
 
+void SyntaxTree::clean()
+{
+    cleanTree(root);
+} //SyntaxTree::clean
+
+void SyntaxTree::cleanTree(Node * & subTree)
+{
+    if (subTree == nullptr) return;
+
+    switch (subTree->type)
+    {
+    case APPLICATION:
+        cleanTree(subTree->left);
+        cleanTree(subTree->right);
+        return;
+    case ABSTRACTION:
+        cleanTree(subTree->left);
+        return;
+    case ATOMIC:
+        if (!subTree->varName.empty()) return;
+        if (subTree->left->right == nullptr)
+        {
+            //Delete the brackets and replace with the contents
+            Node* replacement = subTree->left->left;
+            subTree->left->left = nullptr;
+            delete subTree;
+            subTree = replacement;
+            cleanTree(subTree);
+        }
+        else {
+            cleanTree(subTree->left);
+        }
+    }
+} //SyntaxTree::cleanTree
+
 Node* SyntaxTree::copy(const Node * copyTree)
 {
     if (copyTree == nullptr)
@@ -344,7 +386,7 @@ Node* SyntaxTree::copy(const Node * copyTree)
     return newTree;
 } //SyntaxTree::copyTree
 
-Node* SyntaxTree::findLambdaParent(Node* subTree)
+Node* SyntaxTree::findLambdaParent(Node* subTree) const
 {
     if (subTree->left != nullptr) {
         if ( subTree->left->type == ABSTRACTION)
@@ -353,7 +395,16 @@ Node* SyntaxTree::findLambdaParent(Node* subTree)
         return findLambdaParent(subTree->left);
     }
     return nullptr;
-} //SyntaxTree::findLambda
+} //SyntaxTree::findLambdaParent
+
+Node* SyntaxTree::findApplicant(Node* subTree) const
+{
+    if (subTree->left->type == ATOMIC && subTree->left->varName.empty()) {
+        //Skip a direct brackets
+        return subTree->left->left;
+    }
+    return subTree;
+} //SyntaxTree::findLambdaParent
 
 void SyntaxTree::print() const
 {
@@ -393,9 +444,7 @@ void SyntaxTree::print(Node* node) const
 
 void SyntaxTree::clear()
 {
-    if (root == nullptr) {
-        return;
+    if (root != nullptr) {
+        delete root;
     }
-    delete root;
-    root = nullptr;
 } //SyntaxTree::clear

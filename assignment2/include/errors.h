@@ -2,7 +2,7 @@
  * @file errors.h
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
- * @author N.I. van Laarhoven
+ * @author Noah I. van Laarhoven
  * @brief Header file containing errors
  *        and error-handling functions
 * @date 2023-09-24

@@ -2,7 +2,7 @@
  * @file Lexer.h
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
- * @author N.I. van Laarhoven
+ * @author Noah I. van Laarhoven
  * @brief Lexical analyser header file
  * @date ????
  */
@@ -44,6 +44,10 @@ public:
      */
     void print();
 
+    /**
+     * @brief a vector of tokens formed from the input
+     * 
+     */
     std::vector<Token> tokens;
 };
 

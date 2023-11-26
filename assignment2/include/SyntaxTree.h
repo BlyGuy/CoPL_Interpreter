@@ -2,7 +2,7 @@
  * @file SyntaxTree.h
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
- * @author N.I. van Laarhoven
+ * @author Noah I. van Laarhoven
  * @brief Header file for the SyntaxTree class.
  *        Functions as a syntactical analyser
  *        and a resolver of lambda expressions
@@ -31,7 +31,10 @@
  * First(<Application>) = First{Abstraction}
  */
 
-
+/**
+ * @brief enum for categorizing the types of nodes
+ * 
+ */
 enum ENodeType {
     APPLICATION,
     ABSTRACTION,
@@ -95,13 +98,22 @@ private:
     // BETA-REDUCTION FUNCTIONS //
 
     /**
-     * @brief search first parent of a lambda expression recursively in the subtree,
-     *        left precedence is applied
+     * @brief search the first parent of a lambda expression recursively
+     *        in the subtree, left precedence is applied
      * 
      * @param subtree the subtree to be searched
      * @return Node* to the parent of a lambda expression
      */
-    Node* findLambdaParent(Node* subtree);
+    Node* findLambdaParent(Node* subtree) const;
+
+    /**
+     * @brief search first parent of a lambda expression recursively in the subtree,
+     *        left precedence is applied
+     * 
+     * @param subtree the subtree to be searched
+     * @return Node* to the parent of application N
+     */
+    Node* findApplicant(Node* subtree) const;
 
     /**
      * @brief performs beta-reduction on M with N
@@ -133,10 +145,8 @@ private:
      * 
      * @param M the root of the lambda-expression, M
      * @param N the root of the applicant, N
-     * @return true: alpha-conversion has taken place on M.
-     * @return false: No alpha-conversion has taken place.
      */
-    bool alphaConverse(Node* M, const Node* N);
+    void alphaConverse(Node* M, const Node* N);
     
     /**
      * @brief Get all the bound variables in an expression-tree
@@ -186,6 +196,20 @@ private:
      * @return A pointer to the copied subtree
      */
     Node* copy(const Node * copyTree);
+
+    /**
+     * @brief Clean the subTree of unneccesary brackets.
+     *        This will remove all ATOMIC nodes with an application with only 1 child
+     * 
+     * @param subTree The subTree to remove unneccessary brackets from
+     */
+    void cleanTree(Node * & subTree);
+
+    /**
+     * @brief cleans the SyntaxTree of unneccesary brackets.
+     *        This will remove all ATOMIC nodes with an application with only 1 child
+     */
+    void clean();
 
     /**
     * @brief prints the syntax tree recursively

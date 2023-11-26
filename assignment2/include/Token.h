@@ -2,7 +2,7 @@
  * @file Token.h
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
- * @author N.I. van Laarhoven
+ * @author Noah I. van Laarhoven
  * @brief Token header file
  * @date ????
  */
