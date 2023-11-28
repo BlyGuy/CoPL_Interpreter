@@ -48,13 +48,13 @@ public:
     Node* left = nullptr;
     Node* right = nullptr;
 
-    ~Node();
+    ~Node(); //destructor
 };
 
 class SyntaxTree
 {
 private:
-    Node* root; //root node van de parse-tree
+    Node* root; //root node of the parse-tree
     
     /**
     * @brief constructs the application from the parsetree recursively

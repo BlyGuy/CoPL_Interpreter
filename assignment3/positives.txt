@@ -1,0 +1,11 @@
+(a b)
+abc
+a b c
+a (b c)
+(\ x a b)
+(\x((a) (b)))
+myVar (a (b (c d e f g) h) i j k) l m
+(my123Var my456Var) (\ x abcd) 
+myVar \  urVar ( a b c ) \a theirVar letters123 
+justAVAR
+((((((justAVAR))))))

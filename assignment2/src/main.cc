@@ -57,6 +57,7 @@ int main(int argc, char** argv) {
     //Print the final reduced expression
     tree.print();
     std::cout << std::endl;
+    
     //Exit with the right exit-code
     if (noLimitReached)
         return EXIT_SUCCESS;

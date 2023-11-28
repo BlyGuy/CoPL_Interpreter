@@ -11,7 +11,7 @@ SRC_DIR = src
 SOURCES = $(shell find $(SRC_DIR)/ -name '*.cc')
 OBJECTS = $(SOURCES:.cc=.o)
 DEPS = $(OBJECTS:.o=.d)
-TARGET = interpreter
+TARGET = type-checker
 
 # CXX compiler settings
 CC = g++
@@ -43,6 +43,6 @@ $(TARGET): $(OBJECTS)
 exec:
 	./${TARGET}
 run:
-	./${TARGET} positives.txt
+	./${TARGET} < positives.txt
 clean:
 	rm -f ${OBJECTS} ${DEPS} ${TARGET}

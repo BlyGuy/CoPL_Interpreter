@@ -114,11 +114,13 @@ public:
     
     /**
      * @brief prints the syntax tree
+     * 
      */
     void print();
 
     /**
     * @brief clears the syntax tree
+    * 
     */
     void clear();
 };

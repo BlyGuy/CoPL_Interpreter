@@ -4,7 +4,6 @@
  * @author Joshua J. Lelipaly
  * @author Noah I. van Laarhoven
  * @brief Lexical analyser header file
- * @date ????
  */
 #ifndef LEXER_H
 #define LEXER_H
@@ -44,10 +43,7 @@ public:
      */
     void print();
 
-    /**
-     * @brief a vector of tokens formed from the input
-     * 
-     */
+    // A vector which stores all tokens generated from input
     std::vector<Token> tokens;
 };
 

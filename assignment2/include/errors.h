@@ -5,7 +5,6 @@
  * @author Noah I. van Laarhoven
  * @brief Header file containing errors
  *        and error-handling functions
-* @date 2023-09-24
  */
 #ifndef ERRORS_H
 #define ERRORS_H
@@ -27,7 +26,7 @@ enum EErrorType {
 
 /**
  * @brief prints a descriptive error-message
- *        and exits the program with the matching error-code
+ *        and exits the program with EXIT_FAILURE
  * @param type the type of error that has occured
  */
 void throwException(EErrorType type);

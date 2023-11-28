@@ -4,7 +4,6 @@
  * @author Joshua J. Lelipaly
  * @author Noah I. van Laarhoven
  * @brief Token header file
- * @date ????
  */
 #ifndef TOKENS_H
 #define TOKENS_H
