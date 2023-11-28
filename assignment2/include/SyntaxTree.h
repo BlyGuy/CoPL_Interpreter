@@ -20,6 +20,7 @@
 /**
  * Unambiguous grammar definition:
  * 
+ * <Expr>           ::= <Application>
  * <Application>    ::= <Abstraction> <Application> 
  *                    | <Abstraction>
  * <Abstraction>    ::= LAMBDA VAR <Abstraction>

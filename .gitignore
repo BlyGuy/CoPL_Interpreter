@@ -6,8 +6,10 @@
 *.o
 *.d
 *main
+
 *syntax
 *interpreter
+*type-checker
 
 # Other unwanted binary files
 *.png

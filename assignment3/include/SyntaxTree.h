@@ -15,23 +15,36 @@
 #include "errors.h"
 
 /**
- * Unambiguous grammar definition:
+ * Ambiguous grammar definition:
  * 
- * <Application>    ::= <Abstraction> <Application> 
+ * <Judgement>      ::= <Expression> COLON <Type>
+ *
+ * <Expression>    ::= <Abstraction> <Expression> 
  *                    | <Abstraction>
- * <Abstraction>    ::= LAMBDA VAR <Abstraction>
+ * <Abstraction>    ::= LAMBDA LVAR SUPERSCRIPT <Type> <Expression>
  *                    | <Atomic>
- * <Atomic>         ::= LEFT_BRACKET <Application> RIGHT_BRACKET
- *                    | VAR
- * First(<Atomic>) = {LEFT_BRACKET, VAR}
- * First(<Abstraction>) = {LEFT_BRACKET, VAR, LAMBDA}
- * First(<Application>) = First{Abstraction}
+ * <Atomic>         ::= LEFT_BRACKET <Expression> RIGHT_BRACKET
+ *                    | LVAR
+ *
+ * <Type>           ::= <Base Type> ARROW <Type> | <Base Type>
+ * <BaseType>       ::= UVAR | LEFT_BRACKET <Type> RIGHT_BRACKET
+ *                    
+ * First sets:
+ * First (<BaseType>) = {UVAR, LEFT_BRACKET)}) * First(<Type>) = {First(Basetype)}
+
+ * First(<Type>) = First(<BaseType>)
+ * First(<Atomic>) = {LVAR, LEFT_BRACKET}
+ * First(<Abstraction>) = {LAMBDA, LVAR, LEFT_BRACKET}
+ * First(<Expression>) = {LVAR, LEFT_BRACKET, LAMBDA}
+ * First(<Judgement>) = First{Expression}
  */
 
 enum ENodeType {
     APPLICATION,
     ABSTRACTION,
-    ATOMIC
+    ATOMIC,
+    TYPE,
+    BASE_TYPE
 };
 
 class Node {
