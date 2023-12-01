@@ -1,11 +1,4 @@
-(a b)
-abc
-a b c
-a (b c)
-(\ x a b)
-(\x((a) (b)))
-myVar (a (b (c d e f g) h) i j k) l m
-(my123Var my456Var) (\ x abcd) 
-myVar \  urVar ( a b c ) \a theirVar letters123 
-justAVAR
-((((((justAVAR))))))
+(\x^A (\y^(A->B) (y ((\x^A x) x)))):(A -> ((A -> B) -> B))
+(\x^A x):(A -> A)
+(\x^B (\x^A x)):(B -> (A -> A))
+(\y^A (\x^(A -> (C -> A)) (x y))) : (A -> (A -> C -> A) -> C -> A)

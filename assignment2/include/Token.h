@@ -13,25 +13,13 @@
 /**
  * @brief Enum for categorizing tokens
  * @tokens
- *      - single char: 
-            + LAMBDA '\'
-            + LEFT_BRACKET '('
-            + RIGHT_BRACKET ')' 
-            + COLON ':'
-            + SUPERSCRIPT '^'
- *      - multiple char: 
-            + LVAR (regEx = [a-z][a-zA-Z0-9]*)
-            + UVAR (regEx = [A-Z][a-zA-Z0-9]*)
-            + ARROW '->'
-
+ *      - single char: LAMBDA '\', LEFT_BRACKET '(' , RIGHT_BRACKET ')'
+ *      - multiple char: VAR (regEx = [a-zA-Z][a-zA-Z0-9]*)
  */
 enum ETokenType {
-   LVAR, UVAR,
+   VAR,
    LAMBDA,
-   LEFT_BRACKET, RIGHT_BRACKET,
-   COLON,
-   SUPERSCRIPT,
-   ARROW,
+   LEFT_BRACKET, RIGHT_BRACKET
 };
 
 /**

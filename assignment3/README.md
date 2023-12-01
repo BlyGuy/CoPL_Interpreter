@@ -1,4 +1,4 @@
-# λ-calculus: syntax
+# λ-calculus: Type-checker
 
 ## Student Credits
 

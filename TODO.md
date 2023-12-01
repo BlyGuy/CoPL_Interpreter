@@ -39,4 +39,7 @@
 
 ## Assignment 3
 
-- [ ] Make the TODO list
+- [ ] Implement SyntaxTree::validateTypes()
+- [ ] More accurate error-messages
+- [ ] Don't handle new-lines as the end of a judgement
+- [ ] Test on all examples in assignment specification

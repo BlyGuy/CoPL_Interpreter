@@ -12,7 +12,8 @@ int main() {
     {
         //Lexical analysis
         Lexer lex(input); //convert input text into tokenStream;
-        //lex.print();
+        std::cout << "Lexer: ";
+        lex.print();
 
         //Syntactical analysis
         SyntaxTree tree;
@@ -21,10 +22,16 @@ int main() {
         if (!tree.constructParseTree(lex.tokens)) {
             //Invalid expression: print error and exit
             throwException(UNKNOWN);
-        } else {
-            //Your expression is valid :)
-            tree.print();
         }
+        //The expression is grammatically valid
+
+        //TODO: IMPLEMENT
+        // if (!tree.typeValidation()) {
+        //     throwException(UNKNOWN); //TODO: Unresolvable expression error
+        // }
+        
+        std::cout << "tree:  ";
+        tree.print();
         std::cout << std::endl;
     }
     return EXIT_SUCCESS;

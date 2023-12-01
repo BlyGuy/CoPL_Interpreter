@@ -51,6 +51,21 @@ void Lexer::stringToTokens(const std::string input)
         case ')':
             tokens.push_back({RIGHT_BRACKET, ""});
             break;
+        case ':':
+            tokens.push_back({COLON, ""});
+            break;
+        case '^':
+            tokens.push_back({SUPERSCRIPT, ""});
+            break;
+        case '-':
+            if (i + 1 < inputLength && input[i+1] == '>')
+            {
+                tokens.push_back({ARROW, ""});
+                i++;
+            } else {
+                throwException(ARROW_WITHOUT_HEAD);
+            }
+            break;
         //Ignore Whitespace
         case '\n':
         case '\r':
@@ -59,11 +74,15 @@ void Lexer::stringToTokens(const std::string input)
             break;    
         default:
             //If the character is alphabetical
-            if ((inputChar >= 'a' && inputChar <= 'z') || (inputChar >= 'A' && inputChar <= 'Z')) {
-                tokens.push_back({VAR, parseVariable(input, inputLength, i)});
-                i--;//to prevent the lexer from skipping a character
+            if (inputChar >= 'a' && inputChar <= 'z') { //lower-case
+                tokens.push_back({LVAR, parseVariable(input, inputLength, i)});
+                i--; //to prevent the lexer from skipping a character
+            }
+            else if (inputChar >= 'A' && inputChar <= 'Z') { //upper-case
+                tokens.push_back({UVAR, parseVariable(input, inputLength, i)});
+                i--; //to prevent the lexer from skipping a character
             } else {
-                std::cout << "The character in question: " << input[i] 
+                std::cerr << "The character in question: " << input[i] 
                 << ", character-index in string: " << i << std::endl;
                 throwException(ILLEGAL_CHARACTER);
             }
@@ -77,7 +96,7 @@ void Lexer::print()
     {
         switch (tokens[i].type)
         {
-        case VAR:
+        case LVAR: case UVAR:
             std::cout << tokens[i].varName << ' ';
             break;
         case LAMBDA:
@@ -86,8 +105,17 @@ void Lexer::print()
         case LEFT_BRACKET:
             std::cout << "( ";
             break;
-        case RIGHT_BRACKET :
+        case RIGHT_BRACKET:
             std::cout << ") ";
+            break;
+        case COLON:
+            std::cout << ": ";
+            break;
+        case SUPERSCRIPT:
+            std::cout << "^ ";
+            break;
+        case ARROW:
+            std::cout << "-> ";
             break;
         default:
             break;

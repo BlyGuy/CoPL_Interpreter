@@ -17,29 +17,32 @@
 /**
  * Ambiguous grammar definition:
  * 
- * <Judgement>      ::= <Expression> COLON <Type>
+ * <Judgement>      ::= <Application> COLON <Type>
  *
- * <Expression>    ::= <Abstraction> <Expression> 
+ * <Application>    ::= <Abstraction> <Application> 
  *                    | <Abstraction>
- * <Abstraction>    ::= LAMBDA LVAR SUPERSCRIPT <Type> <Expression>
+ * <Abstraction>    ::= LAMBDA LVAR SUPERSCRIPT <Type> <Application>
  *                    | <Atomic>
- * <Atomic>         ::= LEFT_BRACKET <Expression> RIGHT_BRACKET
+ * <Atomic>         ::= LEFT_BRACKET <Application> RIGHT_BRACKET
  *                    | LVAR
  *
- * <Type>           ::= <Base Type> ARROW <Type> | <Base Type>
- * <BaseType>       ::= UVAR | LEFT_BRACKET <Type> RIGHT_BRACKET
+ * <Type>           ::= <Base Type> ARROW <Type>
+ *                    | <BaseType>
+ * <BaseType>       ::= LEFT_BRACKET <Type> RIGHT_BRACKET
+ *                    | UVAR 
  *                    
  * First sets:
- * First (<BaseType>) = {UVAR, LEFT_BRACKET)}) * First(<Type>) = {First(Basetype)}
-
- * First(<Type>) = First(<BaseType>)
+ * First (<BaseType>) = {UVAR, LEFT_BRACKET)})
+ * First(<Type>) = {First(Basetype)}
+ * 
  * First(<Atomic>) = {LVAR, LEFT_BRACKET}
  * First(<Abstraction>) = {LAMBDA, LVAR, LEFT_BRACKET}
- * First(<Expression>) = {LVAR, LEFT_BRACKET, LAMBDA}
- * First(<Judgement>) = First{Expression}
+ * First(<Application>) = {LVAR, LEFT_BRACKET, LAMBDA}
+ * First(<Judgement>) = First{Application}
  */
 
 enum ENodeType {
+    JUDGEMENT,
     APPLICATION,
     ABSTRACTION,
     ATOMIC,
@@ -61,7 +64,8 @@ class SyntaxTree
 {
 private:
     Node* root; //root node of the parse-tree
-    
+
+    bool constructParseTreeJudge(std::vector<Token> & tokens, size_t & index, Node* subTree);
     /**
     * @brief constructs the application from the parsetree recursively
     *        with the given information from the lexical analyzer     
@@ -102,12 +106,24 @@ private:
     */    
     bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
+    bool constructParseTreeType(std::vector<Token> & tokens, size_t & index, Node* subTree);
+    bool constructParseTreeBType(std::vector<Token> & tokens, size_t & index, Node* subTree);
+
+    /**
+     * @brief Copies the contents of copyTree to the destination Node
+     * 
+     * @param copyTree The subtree that gets copied
+     * @return A pointer to the copied subtree
+     */
+    Node* copy(const Node * copyTree);
+
     /**
     * @brief prints the syntax tree recursively
     * 
     * @param node the current node
     */
     void print(Node* node);
+
 public:
     SyntaxTree();
     SyntaxTree(Lexer & lex);
@@ -124,6 +140,9 @@ public:
     *                  or the parse tree couldn't be created
     */
     bool constructParseTree(std::vector<Token> & tokens);
+
+    //TODO
+    // bool typeValidation();
     
     /**
      * @brief prints the syntax tree
