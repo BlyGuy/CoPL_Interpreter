@@ -50,6 +50,8 @@ enum ENodeType {
     BASE_TYPE
 };
 
+
+
 class Node {
 public:
     ENodeType type;
@@ -60,17 +62,34 @@ public:
     ~Node(); //destructor
 };
 
+struct TypeBinding
+{
+    std::string var = "";
+    Node* type = nullptr;
+};
+
 class SyntaxTree
 {
 private:
     Node* root; //root node of the parse-tree
 
+    /**
+     * @brief constructs the judgement from the parsetree recursively
+     *        and stores the corresponding tokens
+     * 
+     * @param tokens    the vector to store tokens
+     * @param index     the index of the look-ahead token
+     * @param subTree   the tree in question
+     * @return true 
+     * @return false 
+     */
     bool constructParseTreeJudge(std::vector<Token> & tokens, size_t & index, Node* subTree);
+
     /**
     * @brief constructs the application from the parsetree recursively
-    *        with the given information from the lexical analyzer     
-    *
-    * @param lex       the lexical analyzer in question
+    *        and stores the corresponding tokens
+    * 
+    * @param tokens    the vector to store tokens
     * @param index     the index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the application is valid and has been succesfully
@@ -82,10 +101,10 @@ private:
     
     /**
     * @brief constructs the abstraction from the parsetree recursively
-    *        with the given information from the lexical analyzer    
-    *
-    * @param lex       the lexical analyzer in question
-    * @param index     the index of the look-ahead token
+    *        and stores the corresponding tokens
+    * 
+    * @param tokens    the vector to store tokens
+    * @param index     the given index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the abstraction is valid and has been succesfully
                         represented in the parse tree
@@ -96,18 +115,55 @@ private:
     /**
     * @brief constructs the atom from the parsetree recursively
     *        with the given information from the lexical analyzer    
-    *
-    * @param lex       the lexical analyzer in question
+    *        and stores the corresponding tokens
+    * 
+    * @param tokens    the vector to store tokens
     * @param index     the index of the look-ahead token
     * @param subTree   the tree in question
     * @return true     the atom is valid and has been succesfully
-                        represented in the parse tree
+                       represented in the parse tree
     * @return false    the atom is invalid
     */    
     bool constructParseTreeAtom(std::vector<Token> & tokens, size_t & index, Node* subTree);
 
+    /**
+    * @brief constructs the type from the parsetree recursively
+    *        with the given information from the lexical analyzer    
+    *        and stores the corresponding tokens
+    * 
+    * @param tokens    the vector to store tokens
+    * @param index     the index of the look-ahead token
+    * @param subTree   the tree in question
+    * @return true     the type is valid and has been succesfully
+                       represented in the parse tree
+    * @return false    the type is invalid
+    */  
     bool constructParseTreeType(std::vector<Token> & tokens, size_t & index, Node* subTree);
+
+    /**
+    * @brief constructs the base type from the parsetree recursively
+    *        with the given information from the lexical analyzer    
+    *        and stores the corresponding tokens
+    * 
+    * @param tokens    the vector to store tokens
+    * @param index     the index of the look-ahead token
+    * @param subTree   the tree in question
+    * @return true     the base type is valid and has been succesfully
+                       represented in the parse tree
+    * @return false    the base type is invalid
+    */  
     bool constructParseTreeBType(std::vector<Token> & tokens, size_t & index, Node* subTree);
+
+
+    /**
+     * @brief determines the type of the variable in the subtree
+     *        and adds the judgement to the context
+     * 
+     * @param subTree the subtree in question
+     * @param context the context to store judgements in
+     * @return Node* the node pointing to the resulting type
+     */
+    Node* determineType(const Node* subTree, std::vector<TypeBinding> & context);
 
     /**
      * @brief Copies the contents of copyTree to the destination Node
@@ -141,18 +197,31 @@ public:
     */
     bool constructParseTree(std::vector<Token> & tokens);
 
-    //TODO
-    // bool typeValidation();
+    /**
+     * @brief Checks if the type after the colon matches the type of the preceding expression.
+     * 
+     * @return true: if yes.
+     * @return false: if no.
+     */
+    bool typeCheck();
+
+    /**
+     * @brief 
+     * 
+     * @param type1 
+     * @param type2 
+     * @return true 
+     * @return false 
+     */
+    bool checkTypeEquivalence(const Node* type1, const Node* type2) const;
     
     /**
      * @brief prints the syntax tree
-     * 
      */
     void print();
 
     /**
     * @brief clears the syntax tree
-    * 
     */
     void clear();
 };

@@ -20,6 +20,8 @@ const char* errorMessages[] =
     "Variable outside of type-definition must begin with an lowercase letter, uppercase given", //EXPECTED_LVAR
     "Variable in a type-definition must begin with a uppercase letter, lowercase given", //EXPECTED_UVAR
     "A type is missing after the colon ':'", //MISSING_JUDGEMENT_TYPE
+    "The type for a variable is unknown, it is most likely not bound to a lambda statement yet", //UNDECLARED_TYPE
+    "An application seems to be unresolvable", //APPLICATION_UNRESOLVABLE
 };
 
 void throwException(EErrorType type){

@@ -39,7 +39,7 @@
 
 ## Assignment 3
 
-- [ ] Implement SyntaxTree::validateTypes()
+- [x] Implement SyntaxTree::typeCheck()
+- [ ] bugFix type-checking functions
 - [ ] More accurate error-messages
-- [ ] Don't handle new-lines as the end of a judgement
 - [ ] Test on all examples in assignment specification

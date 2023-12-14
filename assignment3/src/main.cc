@@ -24,15 +24,14 @@ int main() {
             throwException(UNKNOWN);
         }
         //The expression is grammatically valid
-
-        //TODO: IMPLEMENT
-        // if (!tree.typeValidation()) {
-        //     throwException(UNKNOWN); //TODO: Unresolvable expression error
-        // }
-        
         std::cout << "tree:  ";
         tree.print();
         std::cout << std::endl;
+
+        if (!tree.typeCheck()) {
+            throwException(UNKNOWN); //TODO: Unresolvable expression error
+        }
+        std::cout << "Succes! :D" << std::endl;
     }
     return EXIT_SUCCESS;
 }
