@@ -240,8 +240,18 @@ bool SyntaxTree::constructParseTreeType(std::vector<Token> & tokens, size_t & in
 bool SyntaxTree::typeCheck()
 {
     std::vector<TypeBinding> context;
-    Node* exprType = determineType(root, context);
+    Node* exprType = determineType(root->left, context);
     Node* typeToCheck = root->right;
+    //Print contents of both
+    std::cout << "exprType: ";
+    print(exprType);
+    std::cout << std::endl;
+    std::cout << "typeToCheck: ";
+    print(typeToCheck);
+    std::cout << std::endl;
+    if (exprType != nullptr) {
+        delete exprType;
+    }
     return checkTypeEquivalence(exprType, typeToCheck);
 } //SyntaxTree::typeCheck
 
@@ -280,6 +290,7 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
     switch (subTree->type)
     {
     case APPLICATION:
+        std::cout << "app " << std::endl;
         leftType = determineType(subTree->left, context);
         rightType = determineType(subTree->right, context);
         //check if the two types can be applied
@@ -294,6 +305,7 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
         //and return the resulting type
         return returnType;
     case ABSTRACTION:
+        std::cout << "abs " << std::endl;
         //Add the type-declaration of the abstraction to the context
         context.push_back({subTree->varName, subTree->left});
         childType = determineType(subTree->right, context);
@@ -307,14 +319,17 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
         context.pop_back();
         return returnType;
     case ATOMIC:
+        std::cout << "atom " << std::endl;
         if (subTree->varName.empty()) {
             //type-check for brackets
             return determineType(subTree->left, context);
         }
         //type-check for var
         for (TypeBinding binding : context) {
-            if (binding.var == subTree->varName)
+            if (binding.var == subTree->varName) {
                 return copy(binding.type);
+                std::cout << "hallelujah" << std::endl;
+            }
         }
         throwException(UNDECLARED_TYPE);
         break;
