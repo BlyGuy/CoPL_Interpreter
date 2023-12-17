@@ -290,28 +290,36 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
     switch (subTree->type)
     {
     case APPLICATION:
-        std::cout << "app " << std::endl;
         leftType = determineType(subTree->left, context);
+        //Check for a standalone lambda expression
+        if (subTree->right == nullptr)
+            return leftType;
+        
+        //otherwise, check if the two types can be applied
         rightType = determineType(subTree->right, context);
-        //check if the two types can be applied
         if (!checkTypeEquivalence(leftType->left, rightType)) {
             throwException(APPLICATION_UNRESOLVABLE);
         }
         //Free all unnecessary type-nodes
-        delete rightType;
-        returnType = leftType->right;
-        leftType->right = nullptr;
-        delete leftType;
+        if (rightType != nullptr)
+            delete rightType;
+        if (leftType != nullptr) {
+            returnType = leftType->right;
+            leftType->right = nullptr;
+            delete leftType;
+        }
         //and return the resulting type
         return returnType;
     case ABSTRACTION:
-        std::cout << "abs " << std::endl;
         //Add the type-declaration of the abstraction to the context
         context.push_back({subTree->varName, subTree->left});
         childType = determineType(subTree->right, context);
 
         //Allocate new nodes to add onto the returned child-type
         returnType = new Node;
+        if (returnType == nullptr) {
+            throwException(ALLOCATION_ERROR);
+        }
         returnType->type = TYPE;
         returnType->left = copy(subTree->left);
         returnType->right = childType;
@@ -319,16 +327,25 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
         context.pop_back();
         return returnType;
     case ATOMIC:
-        std::cout << "atom " << std::endl;
         if (subTree->varName.empty()) {
             //type-check for brackets
-            return determineType(subTree->left, context);
+            childType = determineType(subTree->left, context);
+            // if ( childType == nullptr) {
+            //     throwException();
+            // }
+            //Allocate new nodes to add onto the returned child-type
+            returnType = new Node;
+            if (returnType == nullptr)
+                throwException(ALLOCATION_ERROR);
+            returnType->type = BASE_TYPE;
+            returnType->left = childType;
+            return returnType;
+            
         }
         //type-check for var
         for (TypeBinding binding : context) {
             if (binding.var == subTree->varName) {
                 return copy(binding.type);
-                std::cout << "hallelujah" << std::endl;
             }
         }
         throwException(UNDECLARED_TYPE);
@@ -389,7 +406,7 @@ bool SyntaxTree::constructParseTreeBType(std::vector<Token> & tokens, size_t & i
     return false;
 }
 
-Node* SyntaxTree::copy(const Node * copyTree)
+Node* SyntaxTree::copy(Node * copyTree) const
 {
     if (copyTree == nullptr)
         return nullptr;

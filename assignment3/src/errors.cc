@@ -21,7 +21,8 @@ const char* errorMessages[] =
     "Variable in a type-definition must begin with a uppercase letter, lowercase given", //EXPECTED_UVAR
     "A type is missing after the colon ':'", //MISSING_JUDGEMENT_TYPE
     "The type for a variable is unknown, it is most likely not bound to a lambda statement yet", //UNDECLARED_TYPE
-    "An application seems to be unresolvable", //APPLICATION_UNRESOLVABLE
+    "An application seems to be unresolvable. The input-type of a lambda-expression and the type of an applicant don't match", //APPLICATION_UNRESOLVABLE
+    "Type-check failed. The resolved type of the expression and the given type after the colon do not match" //TYPE_CHECK_FAILED
 };
 
 void throwException(EErrorType type){

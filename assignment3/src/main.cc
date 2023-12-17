@@ -29,7 +29,7 @@ int main() {
         std::cout << std::endl;
 
         if (!tree.typeCheck()) {
-            throwException(UNKNOWN); //TODO: Unresolvable expression error
+            throwException(TYPE_CHECK_FAILED);
         }
         std::cout << "Succes! :D" << std::endl;
     }

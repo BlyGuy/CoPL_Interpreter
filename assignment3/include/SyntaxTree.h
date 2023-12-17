@@ -171,7 +171,7 @@ private:
      * @param copyTree The subtree that gets copied
      * @return A pointer to the copied subtree
      */
-    Node* copy(const Node * copyTree);
+    Node* copy(Node * copyTree) const;
 
     /**
     * @brief prints the syntax tree recursively
