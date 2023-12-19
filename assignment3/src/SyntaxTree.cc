@@ -224,16 +224,7 @@ bool SyntaxTree::constructParseTreeType(std::vector<Token> & tokens, size_t & in
         if (!constructParseTreeType(tokens, index, subTree->right)){
             return false;
         }
-    } //else {
-    //     Node * deletePtr = subTree->left;
-    //     subTree->left = copy(subTree->left);
-    //     subTree->type = BASE_TYPE
-    //     delete deletePtr;
-    //     //TODO
-    //     //Worth it?
-    //     //check this mans genius???
-    //     //Optimalisatie?????? -> just purchase better cpu TRUEEEEEEE get gut nerd 🗣️
-    // }
+    }
     return true; 
 }
 
@@ -243,16 +234,17 @@ bool SyntaxTree::typeCheck()
     Node* exprType = determineType(root->left, context);
     Node* typeToCheck = root->right;
     //Print contents of both
-    std::cout << "exprType: ";
+    std::cout << "exprType:    ";
     print(exprType);
     std::cout << std::endl;
     std::cout << "typeToCheck: ";
     print(typeToCheck);
     std::cout << std::endl;
+    bool result = checkTypeEquivalence(exprType, typeToCheck);
     if (exprType != nullptr) {
         delete exprType;
     }
-    return checkTypeEquivalence(exprType, typeToCheck);
+    return result;
 } //SyntaxTree::typeCheck
 
 bool SyntaxTree::checkTypeEquivalence(const Node* type1, const Node* type2) const
@@ -271,12 +263,27 @@ bool SyntaxTree::checkTypeEquivalence(const Node* type1, const Node* type2) cons
         //Bracket-equivalence
         if (type1->varName.empty() && type2->varName.empty())
             return checkTypeEquivalence(type1->left, type2->left);
+        //If one var, check for var in brackets
+        if (type1->varName.empty() || type2->varName.empty()) {
+            return type1->varName.empty() ?
+                checkTypeEquivalence(type1->left->left, type2) :
+                checkTypeEquivalence(type1, type2->left->left);
+        }
+        
         //Var-equivalence
         return type1->varName == type2->varName;
     }
 
+    //if one is TYPE and other is BASE_TYPE
+    if (type1->type != type2->type)
+    {
+        return type1->type == BASE_TYPE ?
+            checkTypeEquivalence(type1, type2->left) :
+            checkTypeEquivalence(type1->left, type2);
+    }
+    
     //Check if every node in both subTree's is the same as the other tree
-    return  type1->type == type2->type  /* both TYPE */    &&
+    return  (type1->type == type2->type)  /* both TYPE */    &&
             checkTypeEquivalence(type1->left, type2->left) &&
             checkTypeEquivalence(type1->right, type2->right);
 } //SyntaxTree::checkTypeEquivalence
@@ -292,20 +299,48 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
     case APPLICATION:
         leftType = determineType(subTree->left, context);
         //Check for a standalone lambda expression
-        if (subTree->right == nullptr)
+        if (subTree->right == nullptr) {
             return leftType;
-        
+        }
         //otherwise, check if the two types can be applied
         rightType = determineType(subTree->right, context);
-        if (!checkTypeEquivalence(leftType->left, rightType)) {
+        //Find parent of the final return type
+        returnType = leftType;
+        while (returnType != nullptr && returnType->right == nullptr) {
+            returnType = returnType->left;
+        }
+        if (returnType == nullptr)
+            throwException(APPLICATION_HAS_NO_RETURNTYPE);
+        
+        std::cout << "leftType:  ";
+        print(returnType->left);
+        std::cout << std::endl;
+        std::cout << "rightType: ";
+        print(rightType);
+        std::cout << std::endl;
+        childType = rightType;
+        while (childType != nullptr && !checkTypeEquivalence(returnType->left, childType)) {
+            //go one brackets deeper
+            if (childType->left != nullptr && childType->left->type == BASE_TYPE) {
+                childType = childType->left->left;
+            } else {
+                childType = nullptr;
+            }            
+        }
+        if (childType == nullptr) { //No equivalent rightType found
             throwException(APPLICATION_UNRESOLVABLE);
         }
+
+        std::cout << "returnType:  ";
+        print(returnType->right);
+        std::cout << std::endl;
         //Free all unnecessary type-nodes
         if (rightType != nullptr)
             delete rightType;
         if (leftType != nullptr) {
-            returnType = leftType->right;
-            leftType->right = nullptr;
+            childType = returnType;
+            returnType = returnType->right;
+            childType->right = nullptr;
             delete leftType;
         }
         //and return the resulting type
@@ -316,13 +351,13 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
         childType = determineType(subTree->right, context);
 
         //Allocate new nodes to add onto the returned child-type
-        returnType = new Node;
-        if (returnType == nullptr) {
-            throwException(ALLOCATION_ERROR);
+        returnType = copy(subTree->left);
+        rightType = returnType;
+        //Get the rightmost node for return type placement
+        while (rightType->right != nullptr) {
+            rightType = rightType->right;
         }
-        returnType->type = TYPE;
-        returnType->left = copy(subTree->left);
-        returnType->right = childType;
+        rightType->right = childType;
         //Remove our type-declaration from context 
         context.pop_back();
         return returnType;
@@ -330,22 +365,25 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
         if (subTree->varName.empty()) {
             //type-check for brackets
             childType = determineType(subTree->left, context);
-            // if ( childType == nullptr) {
-            //     throwException();
-            // }
-            //Allocate new nodes to add onto the returned child-type
+            //Allocate Nodes for a bracketed type
             returnType = new Node;
             if (returnType == nullptr)
                 throwException(ALLOCATION_ERROR);
-            returnType->type = BASE_TYPE;
-            returnType->left = childType;
+            returnType->type = TYPE;
+            returnType->left = new Node;
+            if (returnType->left == nullptr)
+                throwException(ALLOCATION_ERROR);
+            returnType->left->type = BASE_TYPE;
+            returnType->left->left = childType;
+            //return bracketed childtype
             return returnType;
             
         }
         //type-check for var
-        for (TypeBinding binding : context) {
-            if (binding.var == subTree->varName) {
-                return copy(binding.type);
+        //checks through the most recent bindings in context first
+        for (size_t i = context.size(); i-- > 0;) {
+            if (context[i].var == subTree->varName) {
+                return copy(context[i].type);
             }
         }
         throwException(UNDECLARED_TYPE);
@@ -462,6 +500,7 @@ void SyntaxTree::print(Node* node)
         }
         break;
     case TYPE:
+        //std::cout << "type: ";
         print(node->left);
         if (node->right != nullptr){
             std::cout << "-> ";
@@ -469,6 +508,7 @@ void SyntaxTree::print(Node* node)
         }
         break;
     case BASE_TYPE:
+        //std::cout << "bType: ";
         if (!(node->varName.empty())) {
             std::cout << node->varName << ' ';
         } else {
