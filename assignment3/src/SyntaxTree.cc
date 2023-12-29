@@ -388,6 +388,7 @@ Node* SyntaxTree::determineType(const Node* subTree, std::vector<TypeBinding> & 
                 return copy(context[i].type);
             }
         }
+        std::cerr << "The var: " << subTree->varName << std::endl;
         throwException(UNDECLARED_TYPE);
         break;
     default:
