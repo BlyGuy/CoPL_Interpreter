@@ -178,7 +178,7 @@ private:
     * 
     * @param node the current node
     */
-    void print(Node* node);
+    void print(const Node* node) const;
 
 public:
     SyntaxTree();
@@ -218,7 +218,7 @@ public:
     /**
      * @brief prints the syntax tree
      */
-    void print();
+    void print() const;
 
     /**
     * @brief clears the syntax tree
