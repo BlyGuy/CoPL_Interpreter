@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     //Exit with the right exit-code
     if (!noLimitReached) {
         std::cerr << "ERROR: Expression reduction process reached the maximum amount of allowed reductions\n"
-        << "The reduction limit stands at: " << MAX_REDUCTIONS << " reductions";
+        << "The reduction limit stands at: " << MAX_REDUCTIONS << " reductions" << std::endl;
         return EXIT_LIMIT_REACHED;
     }
 

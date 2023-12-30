@@ -15,7 +15,7 @@ const char* errorMessages[] =
     "A Character in the input-string is not allowed to exist", //ILLEGAL_CHARACTER
     "Empty expressions are not part of the lambda calculus language", //EMPTY_EXPRESSION
     "A Lambda-character is missing either or both a variable and an expression following the variable", //LAMBDA_MISSING_VAR_AND_EXPRESSION
-    "A Lambda-character is missing a directly following variable", //LAMBDA_MISSING_VAR
+    "A Lambda-character is missing a directly following lvar, a variable beginning with a lowercase letter", //LAMBDA_MISSING_VAR
     "A left-bracket near the end of the input-string is either missing an expression or following a right bracket", //UNFINISHED_BRACKET_EXPRESSION
     "An expression inside of brackets is not allowed to be empty", //EMPTY_BRACKET_EXPRESSION
     "A left bracket is missing a following right bracket", //UNPAIRED_LEFT_BRACKET
