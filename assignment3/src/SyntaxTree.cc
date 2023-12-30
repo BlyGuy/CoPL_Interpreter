@@ -1,3 +1,11 @@
+/**
+ * @file SyntaxTree.cc
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
+ * @brief Implementation of the Node and SyntaxTree class
+ */
+
 #include "SyntaxTree.h"
 
 // NODE-CLASS FUNCTIONS //

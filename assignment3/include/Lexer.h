@@ -25,6 +25,7 @@ private:
     * @return the parsed variable as std::string 
     */
     std::string parseVariable(const std::string input, const size_t inputLength, size_t & index);
+    
 public:
     Lexer();
     Lexer(std::string input);

@@ -50,8 +50,6 @@ enum ENodeType {
     BASE_TYPE
 };
 
-
-
 class Node {
 public:
     ENodeType type;

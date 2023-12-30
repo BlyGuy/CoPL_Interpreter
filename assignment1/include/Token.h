@@ -2,7 +2,9 @@
  * @file Token.h
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
- * @brief Token header file
+ * @author Noah I. van Laarhoven
+ * @brief Header file for the Token class.
+ *        Defines the Token and its types.
  */
 #ifndef TOKENS_H
 #define TOKENS_H

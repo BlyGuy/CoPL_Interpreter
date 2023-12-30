@@ -1,3 +1,11 @@
+/**
+ * @file SyntaxTree.cc
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
+ * @brief SyntaxTree class
+ *        Functions as a syntactical analyser of lambda expressions
+ */
 #include "SyntaxTree.h"
 
 // NODE-CLASS FUNCTIONS //
@@ -10,7 +18,6 @@ Node::~Node() {
         delete right;
     }
 }
-
 
 // SYNTAXTREE-CLASS FUNCTIONS //
 

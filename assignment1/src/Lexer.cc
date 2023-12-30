@@ -1,3 +1,10 @@
+/**
+ * @file Lexer.cc
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
+ * @brief Implementation of the Lexer class
+ */
 #include "Lexer.h"
 
 Lexer::Lexer()
@@ -94,4 +101,4 @@ void Lexer::print()
         }
     }
     std::cout << std::endl;
-}
+}//Lexer::print

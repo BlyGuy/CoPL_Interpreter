@@ -1,3 +1,10 @@
+/**
+ * @file main.cc
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
+ * @brief Main file for testing the syntactical analyser
+ */
 #include <iostream>
 #include <string>
 #include <vector>

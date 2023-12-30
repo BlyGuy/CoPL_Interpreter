@@ -3,7 +3,7 @@
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
  * @author Noah I. van Laarhoven
- * @brief Header file containing errors
+ * @brief Header file containing error-types
  *        and error-handling functions
  */
 #ifndef ERRORS_H

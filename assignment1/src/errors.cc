@@ -1,3 +1,10 @@
+/**
+ * @file errors.cc
+ * @author Marc Hoek
+ * @author Joshua J. Lelipaly
+ * @author Noah I. van Laarhoven
+ * @brief A file containing all error-messages and the throwException function
+ */
 #include "errors.h"
 
 const char* errorMessages[] = 

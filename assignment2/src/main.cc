@@ -3,8 +3,7 @@
  * @author Marc Hoek
  * @author Joshua J. Lelipaly
  * @author Noah I. van Laarhoven
- * @brief main file for testing the interpreter
- * @date ????
+ * @brief Main file for testing the interpreter
  */
 #include <iostream>
 #include <fstream>
@@ -18,7 +17,7 @@
 int main(int argc, char** argv) {
 
     if (argc != 2) {
-        std::cerr << "Incorrect parameters :( !" <<
+        std::cerr << "Incorrect parameters! :(" <<
         " Usage: ./interpreter <file containing expression>" << std::endl;
         return EXIT_FAILURE;
     }
@@ -54,13 +53,16 @@ int main(int argc, char** argv) {
 
     //The expression is valid -> perform reductions
     bool noLimitReached = tree.reduce();
-    //Print the final reduced expression
-    tree.print();
-    std::cout << std::endl;
     
     //Exit with the right exit-code
-    if (noLimitReached)
-        return EXIT_SUCCESS;
-    else
+    if (!noLimitReached) {
+        std::cerr << "ERROR: Expression reduction process reached the maximum amount of allowed reductions\n"
+        << "The reduction limit stands at: " << MAX_REDUCTIONS << " reductions";
         return EXIT_LIMIT_REACHED;
+    }
+
+    //Finally, print the final reduced expression
+    tree.print();
+    std::cout << std::endl;
+    return EXIT_SUCCESS;
 }
